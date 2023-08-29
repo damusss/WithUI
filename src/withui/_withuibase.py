@@ -196,6 +196,12 @@ _SETTINGS_HELP = {
         "value_percent": "Manually set the value using percentage (0-100)",
         "handle_size": "The size of the slider handle",
         "on_move": "Called whenever the handle position changes. Pass as parameters the slider itself and the movement delta"
+    },
+    "DropMenu": {
+        "selected_option": "Manually set the currently selected option",
+        "options": "Change the options shown in the menu",
+        "menu_optn": "Manually set the options menu visibility",
+        "direction": "Whether the options menu should appear below or above the arrow. Available are up and down"
     }
 }
 
@@ -234,7 +240,8 @@ class _Status:
         self.hovering = element._rect.collidepoint(
             _UIManager.mouse_pos) and element.settings.can_hover and \
             not any_other and (
-                not element.parent or element.parent._rect.collidepoint(_UIManager.mouse_pos))
+                not element.parent or element.parent._rect.collidepoint(_UIManager.mouse_pos)) \
+            and (not element.parent or (element.parent.settings.active and element.parent.settings.visible))
         if self.hovering and element.settings.on_hover:
             element.settings.on_hover(element)
 
@@ -292,6 +299,11 @@ class _Element:
     def _on_set(self, **kwargs): ...
     def _on_enter(self): ...
     def _on_exit(self): ...
+    def _on_draw(self): ...
+
+    def _update(self):
+        self._pre_update()
+        self._post_update()
 
     def _set_w(self, w):
         if self.settings.width == w:
@@ -359,21 +371,15 @@ class _Element:
         self._rect.h = self.settings.height
         if self.settings.active:
             self.status._update(self)
-        if self._surface.get_width() != self.settings.width or self._surface.get_height() != self.settings.height:
+        if self._surface.get_width() != int(self.settings.width) or self._surface.get_height() != int(self.settings.height):
             self._surface = pygame.Surface(
-                (self.settings.width, self.settings.height), pygame.SRCALPHA)
+                (int(self.settings.width), int(self.settings.height)), pygame.SRCALPHA)
 
     def _post_update(self):
         if not self.settings.active:
             return
         for child in self._children:
             child._update()
-
-    def _update(self):
-        self._pre_update()
-        self._post_update()
-
-    def _on_draw(self): ...
 
     def _draw(self, surface: pygame.Surface):
         if not self.settings.visible:

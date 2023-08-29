@@ -109,7 +109,7 @@ class Separator(_wuib._Element):
 
 class Line(_wuib._Element):
     def _on_init(self):
-        self.set(**STATIC)
+        self.set(**STATIC, height=2)
 
     def _on_draw(self):
         self.settings.background_color = self.settings.outline_color
@@ -443,7 +443,7 @@ class SelectionList(VCont):
         super()._on_init()
         self._option_buttons: list["Button"] = []
         self._multi_select = False
-        self.set(**STATIC, **SCROLLABLE)
+        self.set(**STATIC, **SCROLLABLE, width=100)
 
     def _on_set(self, **kwargs):
         if "options" in kwargs:
@@ -509,6 +509,106 @@ class SelectionList(VCont):
             raise _wuib._WithUIException(
                 f"If multi select is disabled, you can only call 'get_selection', not 'get_multi_selection'")
         return [button.text for button in self._option_buttons if button.status.selected]
+
+    def apply_settings_to_options(self, **kwargs):
+        for btn in self._option_buttons:
+            btn.set(**kwargs)
+
+
+class DropMenu(HCont):
+    def _on_init(self):
+        self._super = super()
+        self._super._on_init()
+        self.__enter__()
+        self._selected_button = Button(text="", on_click=self._selected_click)
+        self._arrow_button = Button(
+            text="▼", on_click=self._arrow_click)
+        self.__exit__()
+        w = max(self.settings.width-self._arrow_button.settings.width -
+                self._selected_button.settings.margin*3, 1)
+        self._selected_button.set(width=w, min_width=w, max_width=w)
+        self._options_cont = VCont(draw_top=True)
+        self._option_buttons: list[Button] = []
+        self._direction = "down"
+        self.set(**STATIC, **INVISIBLE, menu_open=False, width=100)
+
+    def _on_set(self, **kwargs):
+        if "selected_option" in kwargs:
+            self._selected_button.set(text=kwargs["selected_option"])
+        if "options" in kwargs:
+            for btn in self._option_buttons:
+                btn._kill()
+            self._options_cont.__enter__()
+            for option in kwargs["options"]:
+                btn = Button(text=option, has_outline=False,
+                             on_click=self._option_click, width_percent=100)
+                self._option_buttons.append(btn)
+            self._options_cont.__exit__()
+            if not self._selected_button.text and len(kwargs["options"]) > 0:
+                self._selected_button.set(text=kwargs["options"][0])
+        if "menu_open" in kwargs:
+            if kwargs["menu_open"]:
+                self.open_menu()
+            else:
+                self.close_menu()
+        if "direction" in kwargs:
+            self._direction = kwargs["direction"]
+            self.toggle_menu()
+            self.toggle_menu()
+            if not kwargs["direction"] in ["down", "up"]:
+                raise _wuib._WithUIException(
+                    f"Only down and up directions are allowed for drop menus, not '{self._direction}'")
+
+    def _option_click(self, btn):
+        self._selected_button.set(text=btn.text)
+        self.close_menu()
+        if self.settings.on_select:
+            self.settings.on_select(btn.text)
+
+    def _arrow_click(self, btn):
+        self.toggle_menu()
+
+    def _selected_click(self, btn):
+        self.toggle_menu()
+
+    def _update(self):
+        self._super._update()
+        if self._direction == "down":
+            self._options_cont.settings.free_position = pygame.Vector2(
+                self._topleft.x+self._selected_button.settings.margin, self._topleft.y+self.settings.height)
+        else:
+            self._options_cont.settings.free_position = pygame.Vector2(
+                self._topleft.x+self._selected_button.settings.margin, self._topleft.y-self._options_cont.settings.height)
+        self._options_cont.settings.width = self._options_cont.settings.min_width = self._options_cont.settings.max_width = max(
+            self.settings.width-self.settings.margin*2, 1)
+        w = max(self.settings.width-self._arrow_button.settings.width -
+                self._selected_button.settings.margin*3, 1)
+        self._selected_button.settings.width = self._selected_button.settings.max_width = self._selected_button.settings.min_width = w
+
+    def get_selected(self):
+        return self._selected_button.text
+
+    def open_menu(self):
+        self._options_cont.settings.visible = True
+        self._arrow_button.set(text="▲" if self._direction == "down" else "▼")
+
+    def close_menu(self):
+        self._options_cont.settings.visible = False
+        self._arrow_button.set(text="▼" if self._direction == "down" else "▲")
+
+    def toggle_menu(self):
+        self._options_cont.settings.visible = not self._options_cont.settings.visible
+        self._arrow_button.set(text=("▲" if self._direction == "down" else "▼")
+                               if self._options_cont.settings.visible
+                               else ("▼" if self._direction == "down" else "▲"))
+
+    def apply_settings_to_options(self, **kwargs):
+        for btn in self._option_buttons:
+            btn.set(**kwargs)
+
+    @property
+    def menu_open(self):
+        return self._options_cont.settings.visible
 
 
 class UserSettings:

@@ -6,7 +6,7 @@ The name was created after the structure style of the library. To create a paren
 ##
 Note for the user: Any variable, property, method or class starting with one or 2 underscores should never be used by the user, even if it's used somewhere in the library. Example:
 ```c
-element._parent; withui._Element(); element._update()
+element._parent; withui._Element(); element._update() // do not change this!
 ```
 
 # Features
@@ -20,6 +20,7 @@ element._parent; withui._Element(); element._update()
 - Progress bar in all directions
 - Selection list
 - Vertical and horizontal slider
+- Dropdown and dropup menus
 - Line, Separator
 ###
 - Events on every element
