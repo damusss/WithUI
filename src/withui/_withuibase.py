@@ -28,12 +28,13 @@ class _UIManager:
 
 class _Settings:
     # positioning
-    offset = pygame.Vector2()
-    margin = 4
+    offset = None
+    margin = 5
     center_elements = False
     free_position = None
     draw_top = False
     ignore_scroll = False
+    parent_anchor = None
     # style
     border_radius = 7
     outline_width = 2
@@ -45,6 +46,7 @@ class _Settings:
     click_color = (22, 22, 22)
     outline_color = (50, 50, 50)
     text_color = (255, 255, 255)
+    inner_color = (0, 100, 200)
     # style flags
     has_background = True
     has_outline = True
@@ -62,6 +64,8 @@ class _Settings:
     min_height = 0
     max_width = 0
     max_height = 0
+    width_percent = None
+    height_percent = None
     # flags
     visible = True
     active = True
@@ -81,7 +85,7 @@ class _Settings:
     # scrolling
     can_scroll_h = False
     can_scroll_v = False
-    scroll_offset = pygame.Vector2()
+    scroll_offset = None
 
 
 class _Status:
@@ -155,6 +159,7 @@ class _Element:
         self._children: list["_Element"] = []
         self._parent: "_Element" = None
         self.settings = _Settings()
+        self.settings.offset, self.settings.scroll_offset = pygame.Vector2(), pygame.Vector2()
         self.status = _Status()
         self._topleft = pygame.Vector2()
         self._rect = pygame.Rect(
@@ -203,6 +208,7 @@ class _Element:
                     _UIManager.top_elements.remove(self)
 
         self._on_set(**kwargs)
+        return self
 
     def _add_child(self, child):
         self._children.append(child)
@@ -216,7 +222,7 @@ class _Element:
         self._on_enter()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type=None, exc_val=None, exc_tb=None):
         _UIManager.last_element = self._parent
         for child in self._children_queue:
             self._add_child(child)
@@ -229,6 +235,12 @@ class _Element:
         if self.settings.ignore_scroll:
             self.settings.offset = -self._parent.settings.scroll_offset
         self._rect.topleft = self._real_topleft
+        if self.settings.width_percent and self.parent:
+            self.settings.width = (
+                (self.parent.settings.width-self.settings.margin*2-self.parent.scroll_margin_h)*self.settings.width_percent)/100
+        if self.settings.height_percent and self.parent:
+            self.settings.height = (
+                (self.parent.settings.height-self.settings.margin*2-self.parent.scroll_margin_v)*self.settings.height_percent)/100
         self._rect.w = self.settings.width
         self._rect.h = self.settings.height
         self.status._update(self)
@@ -273,6 +285,16 @@ class _Element:
                                      ((self._parent.settings.scroll_offset if not self.settings.ignore_scroll else -self._parent.settings.scroll_offset)
                                       if self._parent else pygame.Vector2()))
                      if not self.settings.draw_top else self._real_topleft)
+        
+    def _kill(self):
+        if self._parent:
+            self._parent._remove_child(self)
+        if self in _UIManager.top_elements:
+            _UIManager.top_elements.remove(self)
+        del self
+            
+    def _remove_child(self, child):
+        if child in self._children: self._children.remove(child)
 
     @property
     def _real_topleft(self):
@@ -327,6 +349,7 @@ class _VScrollbar(_Element):
         if not self._parent.settings.can_scroll_v or self._parent.settings.height >= self._parent.tot_h:
             self.settings.active = False
             self.settings.visible = False
+            return
         self.settings.height = self.settings.max_height = self.settings.min_height = self._parent.settings.height
         self.settings.free_position = pygame.Vector2(
             self._parent.settings.width-self.settings.width, 0)
@@ -341,6 +364,8 @@ class _VScrollbar(_Element):
         self._parent.settings.scroll_offset.y = scroll_v
 
         self._post_update()
+        
+        #print(self.parent.__class__.__name__)
 
         if self.handle.status.pressing:
             self.handle_pos += _UIManager.mouse_rel[1]

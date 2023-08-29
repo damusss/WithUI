@@ -1,0 +1,9 @@
+Elements:
+
+- slider
+- dropdown
+- dropup
+
+Features:
+
+- rename variables in vcont and hcont
