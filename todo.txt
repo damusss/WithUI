@@ -6,4 +6,5 @@ Elements:
 
 Features:
 
-- rename variables in vcont and hcont
+- documentation
+- readme.md: examples

@@ -4,8 +4,8 @@ import pygame
 
 class Button(_wuib._Element):
     def _on_init(self):
-        self.text = ""
-        self.inner_anchor = "center"
+        self.text: str = ""
+        self.inner_anchor: str = "center"
         self._inner_surf = None
         self._inner_rect = None
 
@@ -51,8 +51,8 @@ class Checkbox(_wuib._Element):
 
 class Label(_wuib._Element):
     def _on_init(self):
-        self.text = ""
-        self.inner_anchor = "center"
+        self.text: str = ""
+        self.inner_anchor: str = "center"
         self._inner_surf = None
         self._inner_rect = None
         self.set(has_background=False, has_outline=False)
@@ -78,7 +78,7 @@ class Label(_wuib._Element):
 
 class Image(_wuib._Element):
     def _on_init(self):
-        self.inner_anchor = "center"
+        self.inner_anchor: str = "center"
         self._inner_surf = None
         self._inner_rect = None
         self.set(has_background=False, has_outline=False,
@@ -119,11 +119,11 @@ class ProgressBar(_wuib._Element):
     def _on_init(self):
         self.set(show_press=False, show_hover=False,
                  padding=0, has_dark_bg=True)
-        self.min_value = 0
-        self.max_value = 100
-        self.value = 50
-        self.value_percent = None
-        self.direction = "left-right"
+        self.min_value: _wuib._Number = 0
+        self.max_value: _wuib._Number = 100
+        self.value: _wuib._Number = 50
+        self.value_percent: _wuib._Number = None
+        self.direction: str = "left-right"
         self._inner_rect = pygame.Rect(0, 0, 0, 0)
 
     def _on_set(self, **kwargs):
@@ -175,17 +175,17 @@ class ProgressBar(_wuib._Element):
 
 class VCont(_wuib._Element):
     def _on_enter(self):
-        self.v_scrollbar._kill() if self.v_scrollbar else None
-        self.h_scrollbar._kill() if self.h_scrollbar else None
-        self.v_scrollbar = _wuib._VScrollbar()
-        self.h_scrollbar = _wuib._HScrollbar()
+        self._v_scrollbar._kill() if self._v_scrollbar else None
+        self._h_scrollbar._kill() if self._h_scrollbar else None
+        self._v_scrollbar = _wuib._VScrollbar()
+        self._h_scrollbar = _wuib._HScrollbar()
 
     def _update(self):
         self._pre_update()
         last: _wuib._Element = None
         tot_h = longest = 0
-        self.scroll_margin_h = _wuib._SCROLLBAR_SIZE if self.v_scrollbar.settings.visible and self.v_scrollbar.settings.active else 0
-        self.scroll_margin_v = _wuib._SCROLLBAR_SIZE if self.h_scrollbar.settings.visible and self.h_scrollbar.settings.active else 0
+        self._scroll_margin_h = _wuib._SCROLLBAR_SIZE if self._v_scrollbar.settings.visible and self._v_scrollbar.settings.active else 0
+        self._scroll_margin_v = _wuib._SCROLLBAR_SIZE if self._h_scrollbar.settings.visible and self._h_scrollbar.settings.active else 0
         for child in self._children:
             if child.settings.draw_top or child.settings.free_position or not child.settings.visible or not child.settings.active:
                 continue
@@ -205,11 +205,11 @@ class VCont(_wuib._Element):
                     case "left":
                         topleft.x = child.settings.margin
                     case "right":
-                        topleft.x = max(self.tot_w, self.settings.width) - \
-                            child.settings.margin-child.settings.width-self.scroll_margin_h
+                        topleft.x = max(self._tot_w, self.settings.width) - \
+                            child.settings.margin-child.settings.width-self._scroll_margin_h
                     case "center":
-                        topleft.x = (max(self.tot_w, self.settings.width) -
-                                     self.scroll_margin_h)//2 - (child.settings.width)//2
+                        topleft.x = (max(self._tot_w, self.settings.width) -
+                                     self._scroll_margin_h)//2 - (child.settings.width)//2
                     case _:
                         topleft.x = child.settings.margin
             else:
@@ -218,8 +218,8 @@ class VCont(_wuib._Element):
             child._topleft = topleft
             last = child
 
-            if child.settings.width + child.settings.margin * 2 + self.scroll_margin_h > longest:
-                longest = child.settings.width + child.settings.margin * 2 + self.scroll_margin_h
+            if child.settings.width + child.settings.margin * 2 + self._scroll_margin_h > longest:
+                longest = child.settings.width + child.settings.margin * 2 + self._scroll_margin_h
 
         self._set_h(tot_h)
         self._set_w(longest)
@@ -227,31 +227,31 @@ class VCont(_wuib._Element):
         if self.settings.center_elements and self.settings.height > tot_h:
             for child in self._children:
                 child._topleft.y += (self.settings.height -
-                                     self.scroll_margin_v)//2-tot_h//2
-        self.tot_h = tot_h
-        self.tot_w = longest
+                                     self._scroll_margin_v)//2-tot_h//2
+        self._tot_h = tot_h
+        self._tot_w = longest
         self._post_update()
 
     def _on_init(self):
         self.set(has_dark_bg=True, show_hover=False, show_press=False)
-        self.tot_w, self.tot_h = self.settings.width, self.settings.height
-        self.scroll_margin_h = self.scroll_margin_v = 0
-        self.v_scrollbar= self.h_scrollbar = None
+        self._tot_w, self._tot_h = self.settings.width, self.settings.height
+        self._scroll_margin_h = self._scroll_margin_v = 0
+        self._v_scrollbar = self._h_scrollbar = None
 
 
 class HCont(_wuib._Element):
     def _on_enter(self):
-        self.v_scrollbar._kill() if self.v_scrollbar else None
-        self.h_scrollbar._kill() if self.h_scrollbar else None
-        self.v_scrollbar = _wuib._VScrollbar()
-        self.h_scrollbar = _wuib._HScrollbar()
+        self._v_scrollbar._kill() if self._v_scrollbar else None
+        self._h_scrollbar._kill() if self._h_scrollbar else None
+        self._v_scrollbar = _wuib._VScrollbar()
+        self._h_scrollbar = _wuib._HScrollbar()
 
     def _update(self):
         self._pre_update()
         last: _wuib._Element = None
         tot_w = tallest = 0
-        self.scroll_margin_h = _wuib._SCROLLBAR_SIZE if self.v_scrollbar.settings.visible and self.v_scrollbar.settings.active else 0
-        self.scroll_margin_v = _wuib._SCROLLBAR_SIZE if self.h_scrollbar.settings.visible and self.h_scrollbar.settings.active else 0
+        self._scroll_margin_h = _wuib._SCROLLBAR_SIZE if self._v_scrollbar.settings.visible and self._v_scrollbar.settings.active else 0
+        self._scroll_margin_v = _wuib._SCROLLBAR_SIZE if self._h_scrollbar.settings.visible and self._h_scrollbar.settings.active else 0
         for child in self._children:
             if child.settings.draw_top or child.settings.free_position or not child.settings.visible or not child.settings.active:
                 continue
@@ -271,11 +271,11 @@ class HCont(_wuib._Element):
                     case "top":
                         topleft.y = child.settings.margin
                     case "bottom":
-                        topleft.y = max(self.tot_h, self.settings.height) - \
-                            child.settings.margin-child.settings.height-self.scroll_margin_v
+                        topleft.y = max(self._tot_h, self.settings.height) - \
+                            child.settings.margin-child.settings.height-self._scroll_margin_v
                     case "center":
-                        topleft.y = (max(self.tot_h, self.settings.height) -
-                                     self.scroll_margin_v)//2 - (child.settings.height)//2
+                        topleft.y = (max(self._tot_h, self.settings.height) -
+                                     self._scroll_margin_v)//2 - (child.settings.height)//2
                     case _:
                         topleft.y = child.settings.margin
             else:
@@ -284,8 +284,8 @@ class HCont(_wuib._Element):
             child._topleft = topleft
             last = child
 
-            if child.settings.height + child.settings.margin * 2 + self.scroll_margin_v > tallest:
-                tallest = child.settings.height + child.settings.margin * 2 + self.scroll_margin_v
+            if child.settings.height + child.settings.margin * 2 + self._scroll_margin_v > tallest:
+                tallest = child.settings.height + child.settings.margin * 2 + self._scroll_margin_v
 
         self._set_h(tallest)
         self._set_w(tot_w)
@@ -293,16 +293,16 @@ class HCont(_wuib._Element):
         if self.settings.center_elements and self.settings.width > tot_w:
             for child in self._children:
                 child._topleft.x += (self.settings.width -
-                                     self.scroll_margin_h)//2-tot_w//2
-        self.tot_w = tot_w
-        self.tot_h = tallest
+                                     self._scroll_margin_h)//2-tot_w//2
+        self._tot_w = tot_w
+        self._tot_h = tallest
         self._post_update()
 
     def _on_init(self):
         self.set(has_dark_bg=True, can_hover=False, can_press=False)
-        self.tot_w, self.tot_h = self.settings.width, self.settings.height
-        self.scroll_margin_h = self.scroll_margin_v = 0
-        self.v_scrollbar= self.h_scrollbar = None
+        self._tot_w, self._tot_h = self.settings.width, self.settings.height
+        self._scroll_margin_h = self._scroll_margin_v = 0
+        self._v_scrollbar = self._h_scrollbar = None
 
 
 class Slideshow(HCont):
@@ -311,11 +311,11 @@ class Slideshow(HCont):
         self._surfaces = []
         self._surface_index = 0
         self.__enter__()
-        self.left_arrow = Button(
+        self.left_arrow: Button = Button(
             text="<", on_click=self._on_left_click, height_percent=50)
-        self.image = Image(surface=self._surfaces[self._surface_index] if len(
+        self.image: Image = Image(surface=self._surfaces[self._surface_index] if len(
             self._surfaces) > 0 else None)
-        self.right_arrow = Button(
+        self.right_arrow: Button = Button(
             text=">", on_click=self._on_right_click, height_percent=50)
         self.__exit__()
         self.set(center_elements=True)
@@ -328,7 +328,8 @@ class Slideshow(HCont):
             self.image.set(surface=self._surfaces[self._surface_index] if len(
                 self._surfaces) > 0 else None)
         if "surface_index" in kwargs:
-            self._surface_index = pygame.math.clamp(kwargs["surface_index"], 0, len(self._surfaces)-1)
+            self._surface_index = pygame.math.clamp(
+                kwargs["surface_index"], 0, len(self._surfaces)-1)
             self.image.set(surface=self._surfaces[self._surface_index] if len(
                 self._surfaces) > 0 else None)
 
@@ -345,19 +346,19 @@ class Slideshow(HCont):
             self._surface_index = 0
         self.image.set(surface=self._surfaces[self._surface_index] if len(
             self._surfaces) > 0 else None)
-        
+
     @property
-    def current_surface(self):
+    def current_surface(self) -> pygame.Surface:
         return self.image._inner_surf
 
 
 class SelectionList(VCont):
     def _on_init(self):
         super()._on_init()
-        self._option_buttons:list["Button"] = []
+        self._option_buttons: list["Button"] = []
         self._multi_select = False
         self.set(**STATIC, **SCROLLABLE)
-        
+
     def _on_set(self, **kwargs):
         if "options" in kwargs:
             previously_selected = [btn.text for btn in self._option_buttons]
@@ -365,8 +366,10 @@ class SelectionList(VCont):
                 btn._kill()
             self.__enter__()
             for option in kwargs["options"]:
-                btn = Button(text=option, width_percent=100, has_outline=False, can_select=True, on_select=self._on_select)
-                if option in previously_selected: btn.status.select()
+                btn = Button(text=option, width_percent=100, has_outline=False,
+                             can_select=True, on_select=self._on_select)
+                if option in previously_selected:
+                    btn.status.select()
                 self._option_buttons.append(btn)
             self.__exit__()
         if "multi_select" in kwargs:
@@ -374,72 +377,85 @@ class SelectionList(VCont):
             self._multi_select = kwargs["multi_select"]
             if was and not self._multi_select:
                 for i, btn in enumerate(self._option_buttons):
-                    if i > 0: btn.status.deselect()
+                    if i > 0:
+                        btn.status.deselect()
         if "selected_option" in kwargs:
             if self._multi_select:
-                raise _wuib._WithUIException(f"If multi select is enabled, only the 'selected_options' setting is available, not 'selected_option'")
+                raise _wuib._WithUIException(
+                    f"If multi select is enabled, only the 'selected_options' setting is available, not 'selected_option'")
             for btn in self._option_buttons:
                 if btn.text == kwargs["selected_option"]:
                     btn.status.select()
-                else: btn.status.deselect()
+                else:
+                    btn.status.deselect()
         if "selected_options" in kwargs:
             if not self._multi_select:
-                raise _wuib._WithUIException(f"If multi select is disabled, only the 'selected_option' setting is available, not 'selected_options'")
+                raise _wuib._WithUIException(
+                    f"If multi select is disabled, only the 'selected_option' setting is available, not 'selected_options'")
             for btn in self._option_buttons:
                 if btn.text in kwargs["selected_option"]:
                     btn.status.select()
-                else: btn.status.deselect()
-                
+                else:
+                    btn.status.deselect()
+
     def _on_select(self, button):
         if self._multi_select:
             if self.settings.on_select:
-                self.settings.on_select([button.text for button in self._option_buttons if button.status.selected])
+                self.settings.on_select(
+                    [button.text for button in self._option_buttons if button.status.selected])
         else:
             for btn in self._option_buttons:
-                if btn.text != button.text: btn.status.deselect()
-            if self.settings.on_select: self.settings.on_select(button.text)
-            
-    def get_selection(self):
+                if btn.text != button.text:
+                    btn.status.deselect()
+            if self.settings.on_select:
+                self.settings.on_select(button.text)
+
+    def get_selection(self) -> str:
         if self._multi_select:
-            raise _wuib._WithUIException(f"If multi select is enabled, you can only call 'get_multi_selection', not 'get_selection'")
+            raise _wuib._WithUIException(
+                f"If multi select is enabled, you can only call 'get_multi_selection', not 'get_selection'")
         for btn in self._option_buttons:
-            if btn.status.selected: return btn.text
-    
-    def get_multi_selection(self):
+            if btn.status.selected:
+                return btn.text
+
+    def get_multi_selection(self) -> list[str]:
         if not self._multi_select:
-            raise _wuib._WithUIException(f"If multi select is disabled, you can only call 'get_selection', not 'get_multi_selection'")
+            raise _wuib._WithUIException(
+                f"If multi select is disabled, you can only call 'get_selection', not 'get_multi_selection'")
         return [button.text for button in self._option_buttons if button.status.selected]
-        
+
+
 class UserSettings:
-    settings: dict[str, dict] = {}
+    settings: dict[str, dict[str, _wuib.typing.Any]] = {}
 
     @classmethod
-    def add(cls, name: str, **kwargs):
+    def add(cls, name: str, **kwargs: dict[str, _wuib.typing.Any]) -> dict[str, _wuib.typing.Any]:
         cls.settings[name] = kwargs
+        return kwargs
 
     @classmethod
-    def get(cls, name: str):
+    def get(cls, name: str) -> dict[str, _wuib.typing.Any]:
         return cls.settings[name]
 
 
-INVISIBLE = {
+INVISIBLE: dict[str, bool] = {
     "has_background": False,
     "has_outline": False
 }
 
-SCROLLABLE = {
+SCROLLABLE: dict[str, bool] = {
     "can_scroll_h": True,
     "can_scroll_v": True
 }
 
-STATIC = {
+STATIC: dict[str, bool] = {
     "can_press": False,
     "can_hover": False,
     "can_select": False,
 }
 
 
-def min_max_width(width):
+def min_max_width(width: _wuib._Number) -> dict[str, _wuib._Number]:
     return {
         "width": width,
         "min_width": width,
@@ -447,7 +463,7 @@ def min_max_width(width):
     }
 
 
-def min_max_height(height):
+def min_max_height(height: _wuib._Number) -> dict[str, _wuib._Number]:
     return {
         "height": height,
         "min_height": height,
@@ -455,7 +471,7 @@ def min_max_height(height):
     }
 
 
-def min_max_square(size):
+def min_max_square(size: _wuib._Number) -> dict[str, _wuib._Number]:
     return {
         "width": size,
         "min_width": size,
@@ -464,6 +480,44 @@ def min_max_square(size):
         "min_height": size,
         "max_height": size
     }
+
+
+def settings_help(element: str | type[_wuib._Element] | _wuib._Element = "Element", setting: str = None) -> str | dict[str, str]:
+    element_name = element
+    if isinstance(element_name, type):
+        element_name = element.__name__
+    elif isinstance(element_name, _wuib._Element):
+        element_name = element.__class__.__name__
+    if element_name in _wuib._SETTINGS_HELP:
+        settings = _wuib._SETTINGS_HELP[element_name].copy()
+        if element_name != "Element":
+            settings.update(_wuib._SETTINGS_HELP["Element"])
+        if setting is not None:
+            if setting in settings:
+                return settings[setting]
+            else:
+                raise _wuib._WithUIException(
+                    f"Element '{element_name}' has no setting '{setting}'")
+        else:
+            return settings
+    else:
+        raise _wuib._WithUIException(
+            f"No element exist with name '{element_name}'. Available are: '{_wuib._SETTINGS_HELP.keys()}'")
+
+
+def pretty_print(json_like_object: _wuib.typing.Any):
+    if isinstance(json_like_object, str):
+        print(json_like_object)
+        return
+    formatted = _wuib.json.dumps(json_like_object, indent=2)
+    print(formatted)
+
+
+def pretty_format(json_like_object: _wuib.typing.Any) -> str:
+    if isinstance(json_like_object, str):
+        return json_like_object
+    formatted = _wuib.json.dumps(json_like_object, indent=2)
+    return formatted
 
 
 def update_ui():

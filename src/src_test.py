@@ -29,6 +29,8 @@ with wui.VCont(**wui.UserSettings.get("vcont")) as cont:
     pb = wui.ProgressBar(width_percent=50, height=40, padding=4, value = 0)
     sl = wui.SelectionList(options=["ciao","come","stai", "io", "bene"], max_height = 100, min_width=200)
     wui.Separator(**wui.min_max_square(1000))
+    
+wui.pretty_print(wui.settings_help(sl,"multi_select"))
 
 while True:
     for e in pygame.event.get():

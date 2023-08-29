@@ -1,5 +1,13 @@
 import pygame
+import typing
+import json
 pygame.init()
+
+_ColorValue = pygame.Color | str | tuple[int, int,
+                                         int] | tuple[int, int, int, int] | list[int]
+_Number = int | float
+_Coordinate = pygame.Vector2 | tuple[_Number,
+                                     _Number] | list[_Number] | typing.Iterable[_Number]
 
 
 class _WithUIException(Exception):
@@ -28,78 +36,174 @@ class _UIManager:
 
 class _Settings:
     # positioning
-    offset = None
-    margin = 5
-    center_elements = False
-    free_position = None
-    draw_top = False
-    ignore_scroll = False
-    parent_anchor = None
+    offset: pygame.Vector2 = None
+    margin: _Number = 5
+    center_elements: bool = False
+    free_position: pygame.Vector2 = None
+    draw_top: bool = False
+    ignore_scroll: bool = False
+    parent_anchor: str = None
     # style
-    border_radius = 7
-    outline_width = 2
-    padding = 5
+    border_radius: _Number = 7
+    outline_width: _Number = 2
+    padding: _Number = 5
     # style color
-    background_color = (30, 30, 30)
-    dark_bg_color = (15, 15, 15)
-    hover_color = (40, 40, 40)
-    click_color = (22, 22, 22)
-    outline_color = (50, 50, 50)
-    text_color = (255, 255, 255)
-    inner_color = (0, 100, 200)
+    background_color: _ColorValue = (30, 30, 30)
+    dark_bg_color: _ColorValue = (15, 15, 15)
+    hover_color: _ColorValue = (40, 40, 40)
+    click_color: _ColorValue = (22, 22, 22)
+    outline_color: _ColorValue = (50, 50, 50)
+    text_color: _ColorValue = (255, 255, 255)
+    inner_color: _ColorValue = (0, 100, 200)
     # style flags
-    has_background = True
-    has_outline = True
-    has_dark_bg = False
+    has_background: bool = True
+    has_outline: bool = True
+    has_dark_bg: bool = False
     # text
-    font_size = 22
-    font_name = None
-    sysfont_name = "Segoe UI"
-    font_antialas = True
-    font = pygame.font.SysFont(sysfont_name, font_size)
+    font_size: int = 22
+    font_name: str = None
+    sysfont_name: str = "Segoe UI"
+    font_antialas: bool = True
+    font: pygame.font.Font = pygame.font.SysFont(sysfont_name, font_size)
     # size
-    width = 0
-    height = 0
-    min_width = 0
-    min_height = 0
-    max_width = 0
-    max_height = 0
-    width_percent = None
-    height_percent = None
+    width: _Number = 0
+    height: _Number = 0
+    min_width: _Number = 0
+    min_height: _Number = 0
+    max_width: _Number = 0
+    max_height: _Number = 0
+    width_percent: _Number = None
+    height_percent: _Number = None
     # flags
-    visible = True
-    active = True
+    visible: bool = True
+    active: bool = True
     # events
-    on_hover = None
-    on_click = None
-    on_release = None
-    on_pressed = None
-    on_select = None
-    on_deselect = None
+    on_hover: typing.Callable[[typing.Any], None] = None
+    on_click: typing.Callable[[typing.Any], None] = None
+    on_release: typing.Callable[[typing.Any], None] = None
+    on_pressed: typing.Callable[[typing.Any], None] = None
+    on_select: typing.Callable[[typing.Any], None] = None
+    on_deselect: typing.Callable[[typing.Any], None] = None
     # event flags
-    can_hover = True
-    can_press = True
-    can_select = False
-    show_press = True
-    show_hover = True
+    can_hover: bool = True
+    can_press: bool = True
+    can_select: bool = False
+    show_press: bool = True
+    show_hover: bool = True
     # scrolling
-    can_scroll_h = False
-    can_scroll_v = False
-    scroll_offset = None
+    can_scroll_h: bool = False
+    can_scroll_v: bool = False
+    scroll_offset: pygame.Vector2 = None
+
+
+_SETTINGS_HELP = {
+    "Element": {
+        "offset": "Vector that will offset the element relative to it's normal position",
+        "margin": "How much the element is separated from nearby elements. Same for all directions",
+        "center_elements": "If enabled, containers will center elements in their axis and in the opposite axis unless the element has a different anchor",
+        "free_position": "The element will not be forced in a grid by the container. This position is relative to the parent",
+        "draw_top": "If enabled, the element will be drawn after anything else has been drawn",
+        "ignore_scroll": "If enabled, the element won't move when the container scrolls",
+        "parent_anchor": "The element will stay attached to one side/center of the parent container. Some anchors are only allowed in some containers",
+        "border_radius": "How much the corners of shapes will be rounded",
+        "outline_width": "How thick the outline of the element is",
+        "padding": "How much the inner surface of the element, if any, is separated from the borders",
+        "background_color": "Color to fill the background when the element is not pressed or hovered if has_background flag is enabled",
+        "dark_bg_color": "Color used overriding background_color if has_dark_bg flag is enabled",
+        "hover_color": "Color to fill the background when the element is hovered if can_hover and show_hover flags are enabled",
+        "click_color": "Color to fill the background when the element is being held, if can_press and show_press flags are enabled",
+        "outline_color": "Color of the outline if has_outline flag is true",
+        "text_color": "Color of the text, if any",
+        "inner_color": "Color for shapes inside the element, if any",
+        "font_size": "The size of the font for the text",
+        "font_name": "The file name or the font. None is allowed",
+        "sysfont_name": "If it's not None, it overrides font_name and calls pygame.font.SysFont instead",
+        "font_antialas": "Antialas flag for text rendering",
+        "width": "Current width of the element. Might be changed by the element during runtime",
+        "height": "Current height of the element. Might be changed by the element during runtime",
+        "min_width": "The width of the element will never be smaller than this value",
+        "min_height": "The height of the element will never be smaller than this value",
+        "max_width": "The width of the element will never be grater than this value",
+        "max_height": "The height of the element will never be grater than this value",
+        "width_percent": "If not None, overrides the width using it as a percentage relative to the parent width",
+        "height_percent": "If not None, overrides the height using it as a percentage relative to the parent height",
+        "visible": "If enabled, the element and its children will be drawn",
+        "active": "If enabled, the element and its children will be updated",
+        "on_hover": "Called every frame the element is hovered if can_hover flag is enabled",
+        "on_press": "Called every frame the element is hovered if can_press flag is enabled",
+        "on_click": "Called the frame the element is clicked if can_press flag is enabled",
+        "on_release": "Called the frame the element is not clicked anymore if can_press flag is enabled",
+        "on_select": "Called when the element is selected if can_select flag is enabled",
+        "on_deselect": "Called when the element is deselected if can_select flag is enabled",
+        "can_hover": "If enabled, the element will fire hover events",
+        "can_press": "If enabled, the element will fire press, click and release events",
+        "can_select": "If enabled, the element will fire select and deselect events",
+        "show_hover": "If enabled, when the element is hovered the background will change color if can_hover and has_background flags are enabled",
+        "show_press": "If enabled, when the element is held the background will change color if can_press and has_background flags are enabled",
+        "can_scroll_v": "If enabled, allows containers to scroll vertically",
+        "can_scroll_h": "If enabled, allows containers to scroll horizontally",
+        "scroll_offset": "The scrolling offset of a container. Should not be changed manually",
+    },
+    "Button": {
+        "text": "The text shown in the button",
+        "surface": "The surface shown in the button",
+        "inner_anchor": "Where the surface/text is positioned relative to the element"
+    },
+    "Label": {
+        "text": "The text shown in the label",
+        "inner_anchor": "Where the text is positioned relative to the element"
+    },
+    "Image": {
+        "surface": "The surface shown in the image",
+        "inner_anchor": "Where the surface is positioned relative to the element"
+    },
+    "Checkbox": {
+
+    },
+    "Separator": {
+
+    },
+    "Line": {
+
+    },
+    "ProgressBar": {
+        "min_value": "The minimum value used for calculations",
+        "max_value": "The maximum value used for calculations",
+        "value": "The current value clamped between min and max",
+        "value_percent": "If not None, overrides the value using the percentage between min and max",
+        "direction": "The direction the bar fills in. Available: left-right, right-left, top-bottom, bottom-top",
+    },
+    "VCont": {
+
+    },
+    "HCont": {
+
+    },
+    "Slideshow": {
+        "surfaces": "The surfaces that will be displayed in the slideshow. An empty will result in weird behaviour",
+        "surface_index": "Manually change the current surface"
+    },
+    "SelectionList": {
+        "options": "Sets the selection list options",
+        "multi_select": "Whether the user can select one or more options",
+        "selected_option": "Manually set the selected option. Only if multi_select is disabled",
+        "selected_options": "Manually set the selected options. Only if multi_select is enabled"
+    },
+}
 
 
 class _Status:
-    hovering = False
-    pressing = False
-    selected = False
+    hovering: bool = False
+    pressing: bool = False
+    selected: bool = False
     _clicked = False
     _released = False
     _started_pressing = False
 
-    def check_click(self):
+    def check_click(self) -> bool:
         return self._clicked
 
-    def check_release(self):
+    def check_release(self) -> bool:
         return self._released
 
     def select(self):
@@ -158,9 +262,9 @@ class _Element:
     def __init__(self, **kwargs):
         self._children: list["_Element"] = []
         self._parent: "_Element" = None
-        self.settings = _Settings()
+        self.settings: _Settings = _Settings()
         self.settings.offset, self.settings.scroll_offset = pygame.Vector2(), pygame.Vector2()
-        self.status = _Status()
+        self.status: _Status = _Status()
         self._topleft = pygame.Vector2()
         self._rect = pygame.Rect(
             self._topleft, (self.settings.width, self.settings.height))
@@ -191,7 +295,7 @@ class _Element:
         self.settings.height = pygame.math.clamp(
             h, self.settings.min_height, self.settings.max_height if self.settings.max_height != 0 else float("inf"))
 
-    def set(self, **kwargs):
+    def set(self, **kwargs: dict[str, typing.Any]) -> typing.Self:
         for name, val in kwargs.items():
             if hasattr(self.settings, name):
                 setattr(self.settings, name, val)
@@ -237,13 +341,14 @@ class _Element:
         self._rect.topleft = self._real_topleft
         if self.settings.width_percent and self.parent:
             self.settings.width = (
-                (self.parent.settings.width-self.settings.margin*2-self.parent.scroll_margin_h)*self.settings.width_percent)/100
+                (self.parent.settings.width-self.settings.margin*2-self.parent._scroll_margin_h)*self.settings.width_percent)/100
         if self.settings.height_percent and self.parent:
             self.settings.height = (
-                (self.parent.settings.height-self.settings.margin*2-self.parent.scroll_margin_v)*self.settings.height_percent)/100
+                (self.parent.settings.height-self.settings.margin*2-self.parent._scroll_margin_v)*self.settings.height_percent)/100
         self._rect.w = self.settings.width
         self._rect.h = self.settings.height
-        self.status._update(self)
+        if self.settings.active:
+            self.status._update(self)
         if self._surface.get_width() != self.settings.width or self._surface.get_height() != self.settings.height:
             self._surface = pygame.Surface(
                 (self.settings.width, self.settings.height), pygame.SRCALPHA)
@@ -285,16 +390,17 @@ class _Element:
                                      ((self._parent.settings.scroll_offset if not self.settings.ignore_scroll else -self._parent.settings.scroll_offset)
                                       if self._parent else pygame.Vector2()))
                      if not self.settings.draw_top else self._real_topleft)
-        
+
     def _kill(self):
         if self._parent:
             self._parent._remove_child(self)
         if self in _UIManager.top_elements:
             _UIManager.top_elements.remove(self)
         del self
-            
+
     def _remove_child(self, child):
-        if child in self._children: self._children.remove(child)
+        if child in self._children:
+            self._children.remove(child)
 
     @property
     def _real_topleft(self):
@@ -316,15 +422,15 @@ class _Element:
     def deactivate(self):
         self.settings.active = False
 
-    def point_hovering(self, point):
+    def point_hovering(self, point: _Coordinate) -> bool:
         return self._rect.collidepoint(point)
 
     @property
-    def parent(self):
+    def parent(self) -> "_Element":
         return self._parent
 
     @property
-    def children(self):
+    def children(self) -> list["_Element"]:
         return self._children
 
 
@@ -337,7 +443,7 @@ class _VScrollbar(_Element):
                  min_width=_SCROLLBAR_SIZE, max_width=_SCROLLBAR_SIZE, ignore_scroll=True, draw_top=True)
         _UIManager.last_element = self
         self._children_queue = []
-        self.handle = _Element()
+        self.handle: _Element = _Element()
         self._children.append(self.handle)
         self.handle.set(width=_SCROLLBAR_SIZE, min_width=_SCROLLBAR_SIZE,
                         max_width=_SCROLLBAR_SIZE, ignore_scroll=True)
@@ -346,7 +452,7 @@ class _VScrollbar(_Element):
         del self._children_queue
 
     def _update(self):
-        if not self._parent.settings.can_scroll_v or self._parent.settings.height >= self._parent.tot_h:
+        if not self._parent.settings.can_scroll_v or self._parent.settings.height >= self._parent._tot_h:
             self.settings.active = False
             self.settings.visible = False
             return
@@ -357,15 +463,15 @@ class _VScrollbar(_Element):
         self._pre_update()
 
         self.handle_size = (self.settings.height *
-                            self._parent.settings.height)/self._parent.tot_h
-        scroll_v = (self.handle_pos*self._parent.tot_h)/self.settings.height
+                            self._parent.settings.height)/self._parent._tot_h
+        scroll_v = (self.handle_pos*self._parent._tot_h)/self.settings.height
         self.handle.settings.free_position = pygame.Vector2(0, self.handle_pos)
         self.handle.settings.height = self.handle.settings.min_height = self.handle.settings.max_height = self.handle_size
         self._parent.settings.scroll_offset.y = scroll_v
 
         self._post_update()
-        
-        #print(self.parent.__class__.__name__)
+
+        # print(self.parent.__class__.__name__)
 
         if self.handle.status.pressing:
             self.handle_pos += _UIManager.mouse_rel[1]
@@ -392,7 +498,7 @@ class _HScrollbar(_Element):
         del self._children_queue
 
     def _update(self):
-        if not self._parent.settings.can_scroll_h or self._parent.settings.width >= self._parent.tot_w:
+        if not self._parent.settings.can_scroll_h or self._parent.settings.width >= self._parent._tot_w:
             self.settings.active = False
             self.settings.visible = False
         self.settings.width = self.settings.max_width = self.settings.min_width = self._parent.settings.width
@@ -402,8 +508,8 @@ class _HScrollbar(_Element):
         self._pre_update()
 
         self.handle_size = (self.settings.width *
-                            self._parent.settings.width)/self._parent.tot_w
-        scroll_v = (self.handle_pos*self._parent.tot_w)/self.settings.width
+                            self._parent.settings.width)/self._parent._tot_w
+        scroll_v = (self.handle_pos*self._parent._tot_w)/self.settings.width
         self.handle.settings.free_position = pygame.Vector2(self.handle_pos, 0)
         self.handle.settings.width = self.handle.settings.min_width = self.handle.settings.max_width = self.handle_size
         self._parent.settings.scroll_offset.x = scroll_v
