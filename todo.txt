@@ -1,6 +1,5 @@
 Elements:
 
-- slider
 - dropdown
 - dropup
 

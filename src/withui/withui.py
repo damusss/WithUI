@@ -173,6 +173,92 @@ class ProgressBar(_wuib._Element):
                              self._inner_rect, 0, self.settings.border_radius)
 
 
+class Slider(_wuib._Element):
+    def _on_init(self):
+        self.set(**STATIC, has_dark_bg=True,
+                 height=_wuib._SLIDER_SIZE, margin=_wuib._HANDLE_SIZE//2)
+        self._direction = "horizontal"
+        self.handle = Button(free_position=pygame.Vector2(0, 0))
+        self._handle_pos = 0
+        self._handle_size = _wuib._HANDLE_SIZE
+        self._on_move = None
+        self.value: float = 0
+
+    def _on_set(self, **kwargs):
+        if "size" in kwargs:
+            if "direction" in kwargs:
+                self._direction = kwargs["direction"]
+                if self._direction not in ["horizontal", "vertical"]:
+                    raise _wuib._WithUIException(
+                        f"Supported slider directions are horizontal and vertical, not '{self._direction}'")
+            if self._direction == "horizontal":
+                self.settings.width = kwargs["size"]
+            else:
+                self.settings.height = kwargs["size"]
+        if "direction" in kwargs:
+            self._direction = kwargs["direction"]
+            if self._direction not in ["horizontal", "vertical"]:
+                raise _wuib._WithUIException(
+                    f"Supported slider directions are horizontal and vertical, not '{self._direction}'")
+            if self._direction == "horizontal":
+                self.settings.height = _wuib._SLIDER_SIZE
+            else:
+                self.settings.width = _wuib._SLIDER_SIZE
+        if "value" in kwargs:
+            self.value = pygame.math.clamp(kwargs["value"], 0, 1)
+            if self._direction == "horizontal":
+                self._handle_pos = self.settings.width*self.value
+            else:
+                self._handle_pos = self.settings.height*self.value
+        if "value_percent" in kwargs:
+            self.value = pygame.math.clamp(kwargs["value_percent"], 0, 100)/100
+            if self._direction == "horizontal":
+                self._handle_pos = self.settings.width*self.value
+            else:
+                self._handle_pos = self.settings.height*self.value
+        if "handle_size" in kwargs:
+            self._handle_size = kwargs["handle_size"]
+            self.settings.margin = self._handle_size//2
+        if "on_move" in kwargs:
+            self._on_move = kwargs["on_move"]
+
+    def _update(self):
+        self._pre_update()
+
+        self.handle.settings.width = self.handle.settings.height = self._handle_size
+        if self._direction == "horizontal":
+            self.handle.settings.free_position = pygame.Vector2(
+                self._topleft.x+self._handle_pos-self._handle_size//4, self._topleft.y+self.settings.height//2-self._handle_size//2)
+        else:
+            self.handle.settings.free_position = pygame.Vector2(
+                self._topleft.x+self.settings.width//2-self._handle_size//2, self._topleft.y+self._handle_pos-self._handle_size//4)
+
+        self._post_update()
+        previous = self._handle_pos
+        if self.handle.status.pressing:
+            self._handle_pos += _wuib._UIManager.mouse_rel[0 if self._direction ==
+                                                           "horizontal" else 1]
+            if self._handle_pos < 0:
+                self._handle_pos = 0
+            size = self.settings.width if self._direction == "horizontal" else self.settings.height
+            if self._handle_pos > size-self._handle_size//2:
+                self._handle_pos = size-self._handle_size//2
+
+        if self._handle_pos == 0:
+            self.value = 0
+        else:
+            self.value = self._handle_pos / \
+                ((self.settings.width if self._direction ==
+                 "horizontal" else self.settings.height)-self._handle_size//2)
+
+        if previous != self._handle_pos and self._on_move:
+            self._on_move(self, self._handle_pos-previous)
+
+    @property
+    def value_percent(self):
+        return self.value*100
+
+
 class VCont(_wuib._Element):
     def _on_enter(self):
         self._v_scrollbar._kill() if self._v_scrollbar else None

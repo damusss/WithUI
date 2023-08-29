@@ -184,11 +184,19 @@ _SETTINGS_HELP = {
         "surface_index": "Manually change the current surface"
     },
     "SelectionList": {
-        "options": "Sets the selection list options",
+        "options": "Set the selection list options",
         "multi_select": "Whether the user can select one or more options",
         "selected_option": "Manually set the selected option. Only if multi_select is disabled",
         "selected_options": "Manually set the selected options. Only if multi_select is enabled"
     },
+    "Slider": {
+        "size": "Set either the width or the height depending on the direction",
+        "direction": "The slider direction. Available are horizontal and vertical",
+        "value": "Manually set the value, which goes from 0 to 1",
+        "value_percent": "Manually set the value using percentage (0-100)",
+        "handle_size": "The size of the slider handle",
+        "on_move": "Called whenever the handle position changes. Pass as parameters the slider itself and the movement delta"
+    }
 }
 
 
@@ -224,7 +232,9 @@ class _Status:
                 any_other = True
         was_hovering = self.hovering
         self.hovering = element._rect.collidepoint(
-            _UIManager.mouse_pos) and element.settings.can_hover and not any_other
+            _UIManager.mouse_pos) and element.settings.can_hover and \
+            not any_other and (
+                not element.parent or element.parent._rect.collidepoint(_UIManager.mouse_pos))
         if self.hovering and element.settings.on_hover:
             element.settings.on_hover(element)
 
@@ -435,6 +445,8 @@ class _Element:
 
 
 _SCROLLBAR_SIZE = 15
+_SLIDER_SIZE = 15
+_HANDLE_SIZE = 25
 
 
 class _VScrollbar(_Element):

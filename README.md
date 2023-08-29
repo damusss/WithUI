@@ -17,9 +17,11 @@ element._parent; withui._Element(); element._update()
 - Image
 - Checkbox
 - Slideshow
-- Progress bar
+- Progress bar in all directions
 - Selection list
+- Vertical and horizontal slider
+- Line, Separator
 ###
 - Events on every element
-- Very customizable settings
+- Very customizable element settings
 - Settings utilities
