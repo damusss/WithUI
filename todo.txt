@@ -1,7 +1,5 @@
 Elements:
 
-- window, window stack
-- multi line label
 - text box (multi line label)
 - text area (multi line entryline)
 

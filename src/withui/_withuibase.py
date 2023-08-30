@@ -16,7 +16,7 @@ class _WithUIException(Exception):
 
 class _UIManager:
     last_element: "_Element" = None
-    top_element: "_Element" = None
+    tree_elements: list["_Element"] = []
     top_elements: list["_Element"] = []
     mouse_buttons = None
     mouse_pos = None
@@ -46,7 +46,7 @@ class _Settings:
     # style
     border_radius: _Number = 7
     outline_width: _Number = 2
-    padding: _Number = 5
+    padding: _Number = 3
     # style color
     background_color: _ColorValue = (30, 30, 30)
     dark_bg_color: _ColorValue = (15, 15, 15)
@@ -60,7 +60,7 @@ class _Settings:
     has_outline: bool = True
     has_dark_bg: bool = False
     # text
-    font_size: int = 22
+    font_size: int = 20
     font_name: str = None
     sysfont_name: str = "Segoe UI"
     font_antialas: bool = True
@@ -127,6 +127,12 @@ _SETTINGS_HELP = {
         "max_height": "The height of the element will never be grater than this value",
         "width_percent": "If not None, overrides the width using it as a percentage relative to the parent width",
         "height_percent": "If not None, overrides the height using it as a percentage relative to the parent height",
+        "size": "Both width and height are updated with the iterable",
+        "min_size": "Both min_width and min_height are updated with the iterable",
+        "max_size": "Both max_width and max_height are updated with the iterable",
+        "min_max_width": "Width, min_width and max_width are set to the same value",
+        "min_max_height": "Height, min_height and max_height are set to the same value",
+        "min_max_size": "Width, min_width, max_width, height, min_height, max_height are set to the same values from the iterator",
         "visible": "If enabled, the element and its children will be drawn",
         "active": "If enabled, the element and its children will be updated",
         "on_hover": "Called every frame the element is hovered if can_hover flag is enabled",
@@ -190,7 +196,7 @@ _SETTINGS_HELP = {
         "selected_options": "Manually set the selected options. Only if multi_select is enabled"
     },
     "Slider": {
-        "size": "Set either the width or the height depending on the direction",
+        "slider_size": "Set either the width or the height depending on the direction",
         "direction": "The slider direction. Available are horizontal and vertical",
         "value": "Manually set the value, which goes from 0 to 1",
         "value_percent": "Manually set the value using percentage (0-100)",
@@ -202,6 +208,12 @@ _SETTINGS_HELP = {
         "options": "Change the options shown in the menu",
         "menu_optn": "Manually set the options menu visibility",
         "direction": "Whether the options menu should appear below or above the arrow. Available are up and down"
+    },
+    "Window": {
+        "title": "The title button text. To change more settings, use the title_button property",
+        "on_close": "Called when the close button is clicked. Before the callback is called the window is hidden",
+        "topleft": "Modify the topleft position of the window manually",
+        "can_drag": "Whether holding the title button will make the window move or not"
     }
 }
 
@@ -286,14 +298,25 @@ class _Element:
         self._rect = pygame.Rect(
             self._topleft, (self.settings.width, self.settings.height))
         self._surface = pygame.Surface((1, 1), pygame.SRCALPHA)
+        self._tree_index = -1
         if _UIManager.last_element:
             _UIManager.last_element._add_to_queue(self)
             self._parent = _UIManager.last_element
+            self._tree_element = self._parent._get_tree()
         else:
             _UIManager.last_element = self
-            _UIManager.top_element = self
+            self._tree_index = len(_UIManager.tree_elements)
+            _UIManager.tree_elements.append(self)
+            self._tree_element = self
+            
         self._on_init()
         self.set(**kwargs)
+        
+    def _get_tree(self):
+        if self in _UIManager.tree_elements:
+            return self
+        elif self.parent:
+            return self.parent._get_tree()
 
     def _on_init(self): ...
     def _on_set(self, **kwargs): ...
@@ -321,6 +344,24 @@ class _Element:
         for name, val in kwargs.items():
             if hasattr(self.settings, name):
                 setattr(self.settings, name, val)
+        
+        if "min_max_size" in kwargs:
+            self.settings.width =self.settings.min_width=self.settings.max_width= kwargs["min_max_size"][0]
+            self.settings.height =self.settings.min_height=self.settings.max_height= kwargs["min_max_size"][1]
+        if "min_size" in kwargs:
+            self.settings.min_width = kwargs["min_size"][0]
+            self.settings.min_height = kwargs["min_size"][1]
+        if "max_size" in kwargs:
+            self.settings.max_width = kwargs["max_size"][0]
+            self.settings.max_height = kwargs["max_size"][1]
+        if "size" in kwargs:
+            print(kwargs["size"])
+            self.settings.width = kwargs["size"][0]
+            self.settings.height = kwargs["size"][1]
+        if "min_max_width" in kwargs:
+            self.settings.width = self.settings.max_width = self.settings.min_width = kwargs["min_max_width"]
+        if "min_max_height" in kwargs:
+            self.settings.height = self.settings.max_height = self.settings.min_height = kwargs["min_max_height"]
         if "font_size" in kwargs or "font_name" in kwargs:
             func = pygame.font.SysFont if self.settings.sysfont_name else pygame.font.Font
             font_name = self.settings.sysfont_name if self.settings.sysfont_name else self.settings.font_name
@@ -412,6 +453,10 @@ class _Element:
             self._parent._remove_child(self)
         if self in _UIManager.top_elements:
             _UIManager.top_elements.remove(self)
+        if self in _UIManager.tree_elements:
+            _UIManager.tree_elements.remove(self)
+        for child in self.children:
+            child._kill()
         del self
 
     def _remove_child(self, child):

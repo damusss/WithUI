@@ -14,8 +14,7 @@ surfaces = [pygame.Surface((100, 100)) for col in colors]
 
 wui.UserSettings.add("vcont",
                      center_elements=True,
-                     **wui.min_max_width(1000),
-                     **wui.min_max_height(700),
+                     min_max_size=(1000,700),
                      **wui.SCROLLABLE)
 
 value = 0
@@ -23,20 +22,23 @@ vspeed = 0.2
 vdir = 1
 
 with wui.VCont(**wui.UserSettings.get("vcont")) as cont:
-    label = wui.Label(text="FPS", anchor="center",
+    label = wui.Label(text="Label", anchor="center",
                       min_width=100, min_height=50)
     wui.Line(height=3, width_percent=100)
-    checkbox = wui.Checkbox(**wui.min_max_square(30))
+    checkbox = wui.Checkbox(min_max_size=(30,30))
     button = wui.Button(text="RANDOM BUTTON")
     wui.Slideshow(surfaces=surfaces)
     pb = wui.ProgressBar(width_percent=50, height=40, padding=4, value=0)
     sl = wui.SelectionList(
         options=["ciao", "come", "stai", "io", "bene"], max_height=100, min_width=200)
-    s = wui.Slider(direction="horizontal", value_percent=30, size=300)
+    s = wui.Slider(direction="horizontal", value_percent=30, slider_size=300)
     wui.DropMenu(options=["io", "sono", "tua", "madre",
-                 "in", "realta"], **wui.min_max_width(200))
+                 "in", "realta"], min_max_width=200)
     # wui.Line(height=2, width_percent=100)
-    wui.Separator(**wui.min_max_square(800))
+    wui.Separator(min_max_size=(800,800))
+    
+with wui.Window(min_max_size=(300,300)):
+    for i in range(20): wui.Button(text="win button")
 
 while True:
     for e in pygame.event.get():

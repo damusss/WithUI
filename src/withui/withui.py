@@ -185,16 +185,16 @@ class Slider(_wuib._Element):
         self.value: float = 0
 
     def _on_set(self, **kwargs):
-        if "size" in kwargs:
+        if "slider_size" in kwargs:
             if "direction" in kwargs:
                 self._direction = kwargs["direction"]
                 if self._direction not in ["horizontal", "vertical"]:
                     raise _wuib._WithUIException(
                         f"Supported slider directions are horizontal and vertical, not '{self._direction}'")
             if self._direction == "horizontal":
-                self.settings.width = kwargs["size"]
+                self.settings.width = kwargs["slider_size"]
             else:
-                self.settings.height = kwargs["size"]
+                self.settings.height = kwargs["slider_size"]
         if "direction" in kwargs:
             self._direction = kwargs["direction"]
             if self._direction not in ["horizontal", "vertical"]:
@@ -277,8 +277,10 @@ class VCont(_wuib._Element):
                 continue
             if last:
                 topleft = last._topleft.copy()
-                topleft.y += last.settings.height+child.settings.margin
-                tot_h += child.settings.margin+child.settings.height
+                topleft.y += last.settings.height + \
+                    ((child.settings.margin+last.settings.margin)/2)
+                tot_h += ((child.settings.margin+last.settings.margin)/2) + \
+                    child.settings.height
             else:
                 topleft = pygame.Vector2()
                 topleft.y += child.settings.margin
@@ -343,8 +345,10 @@ class HCont(_wuib._Element):
                 continue
             if last:
                 topleft = last._topleft.copy()
-                topleft.x += last.settings.width+child.settings.margin
-                tot_w += child.settings.margin+child.settings.width
+                topleft.x += last.settings.width + \
+                    ((child.settings.margin+last.settings.margin)/2)
+                tot_w += ((child.settings.margin+last.settings.margin)/2) + \
+                    child.settings.width
             else:
                 topleft = pygame.Vector2()
                 topleft.x += child.settings.margin
@@ -520,9 +524,10 @@ class DropMenu(HCont):
         self._super = super()
         self._super._on_init()
         self.__enter__()
-        self._selected_button = Button(text="", on_click=self._selected_click)
+        self._selected_button = Button(
+            text="", on_click=self._selected_click, margin=0)
         self._arrow_button = Button(
-            text="▼", on_click=self._arrow_click)
+            text="▼", on_click=self._arrow_click, margin=0)
         self.__exit__()
         w = max(self.settings.width-self._arrow_button.settings.width -
                 self._selected_button.settings.margin*3, 1)
@@ -580,7 +585,7 @@ class DropMenu(HCont):
             self._options_cont.settings.free_position = pygame.Vector2(
                 self._topleft.x+self._selected_button.settings.margin, self._topleft.y-self._options_cont.settings.height)
         self._options_cont.settings.width = self._options_cont.settings.min_width = self._options_cont.settings.max_width = max(
-            self.settings.width-self.settings.margin*2, 1)
+            self.settings.width-self._selected_button.settings.margin-self._arrow_button.settings.margin, 1)
         w = max(self.settings.width-self._arrow_button.settings.width -
                 self._selected_button.settings.margin*3, 1)
         self._selected_button.settings.width = self._selected_button.settings.max_width = self._selected_button.settings.min_width = w
@@ -611,6 +616,98 @@ class DropMenu(HCont):
         return self._options_cont.settings.visible
 
 
+class Window(VCont):
+    def _on_init(self):
+        self._super = super()
+        self._super._on_init()
+        if self not in _wuib._UIManager.tree_elements:
+            raise _wuib._WithUIException(
+                f"Window elements should be declared at the top and not have any parent")
+        self._finished_instantiating = False
+        self.__enter__()
+        self._title_cont = HCont(**INVISIBLE)
+        self._title_cont.__enter__()
+        self._title_button = Button(
+            text="Wui Window", inner_anchor="midleft", margin=0)
+        self._close_button = Button(
+            text="X", margin=0, on_click=self._on_close_click)
+        self._title_cont.__exit__()
+        self._elements_cont = VCont(**INVISIBLE, margin=0, **SCROLLABLE)
+        self.__exit__()
+        self._finished_instantiating = True
+        self._on_close = None
+        self._can_drag = True
+
+    def __enter__(self):
+        if not self._finished_instantiating:
+            self._children_queue: list["_wuib._Element"] = []
+            _wuib._UIManager.last_element = self
+            self._on_enter()
+            return self
+        self._elements_cont.__enter__()
+        return self
+
+    def __exit__(self, exc_type=None, exc_val=None, exc_tb=None):
+        if not self._finished_instantiating:
+            _wuib._UIManager.last_element = self._parent
+            for child in self._children_queue:
+                self._add_child(child)
+            self._on_exit()
+            del self._children_queue
+            return
+        self._elements_cont.__exit__()
+        _wuib._UIManager.last_element = self._parent
+
+    def _on_set(self, **kwargs):
+        if "title" in kwargs:
+            self._title_button.set(text=kwargs["title"])
+        if "on_close" in kwargs:
+            self._on_close = kwargs["on_close"]
+        if "topleft" in kwargs:
+            self._topleft = pygame.Vector2(kwargs["topleft"])
+        if "can_drag" in kwargs:
+            self._can_drag = kwargs["can_drag"]
+
+    def _update(self):
+        self._elements_cont.settings.height = self._elements_cont.settings.min_height = self._elements_cont.settings.max_height = max(
+            1, self.settings.height-self._title_cont.settings.height-self._title_cont.settings.margin*2)
+        self._elements_cont.settings.width = self._elements_cont.settings.min_width = self._elements_cont.settings.max_width = max(
+            1, self.settings.width)
+        self._title_cont.settings.width = self._title_cont.settings.min_width = self._title_cont.settings.max_width = max(
+            1, self.settings.width)
+        self._close_button.settings.width = self._close_button.settings.height
+        self._title_button.settings.width = self._title_button.settings.min_width = self._title_button.settings.max_width = max(
+            1, self.settings.width-self._close_button.settings.width-self._title_cont.settings.margin*2)
+        if self._can_drag and self._title_button.status.pressing:
+            self._topleft += pygame.Vector2(_wuib._UIManager.mouse_rel)
+        if self.status.pressing:
+            atleastone = False
+            for element in _wuib._UIManager.tree_elements:
+                if element._tree_index > self._tree_index:
+                    element._tree_index -= 1
+                    atleastone = True
+            if atleastone:
+                self._tree_index += 1
+        self._super._update()
+
+    def _on_close_click(self, btn):
+        self.hide()
+        if self._on_close:
+            self._on_close(self)
+            
+    @property
+    def title_button(self):
+        return self._title_button
+    
+    @property
+    def close_button(self):
+        return self._close_button
+    
+    @property
+    def inner_container(self):
+        return self._elements_cont
+
+
 class UserSettings:
     settings: dict[str, dict[str, _wuib.typing.Any]] = {}
 
@@ -639,34 +736,6 @@ STATIC: dict[str, bool] = {
     "can_hover": False,
     "can_select": False,
 }
-
-
-def min_max_width(width: _wuib._Number) -> dict[str, _wuib._Number]:
-    return {
-        "width": width,
-        "min_width": width,
-        "max_width": width
-    }
-
-
-def min_max_height(height: _wuib._Number) -> dict[str, _wuib._Number]:
-    return {
-        "height": height,
-        "min_height": height,
-        "max_height": height
-    }
-
-
-def min_max_square(size: _wuib._Number) -> dict[str, _wuib._Number]:
-    return {
-        "width": size,
-        "min_width": size,
-        "max_width": size,
-        "height": size,
-        "min_height": size,
-        "max_height": size
-    }
-
 
 def settings_help(element: str | type[_wuib._Element] | _wuib._Element = "Element", setting: str = None) -> str | dict[str, str]:
     element_name = element
@@ -708,10 +777,13 @@ def pretty_format(json_like_object: _wuib.typing.Any) -> str:
 
 def update_ui():
     _wuib._UIManager.update()
-    _wuib._UIManager.top_element._update()
+    for element in _wuib._UIManager.tree_elements:
+        element._update()
 
 
 def draw_ui(surface):
-    _wuib._UIManager.top_element._draw(surface)
-    for el in _wuib._UIManager.top_elements:
-        el._draw(surface)
+    for element in sorted(_wuib._UIManager.tree_elements, key=lambda tel: tel._tree_index):
+        element._draw(surface)
+        for el in _wuib._UIManager.top_elements:
+            if el._tree_element._tree_index == element._tree_index:
+                el._draw(surface)
