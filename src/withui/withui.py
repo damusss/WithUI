@@ -1,6 +1,9 @@
 from . import _withuibase as _wuib
 import pygame
 
+DefaultSettings = _wuib._Settings
+EmptyElement = _wuib._Element
+
 
 class Button(_wuib._Element):
     def _on_init(self):
@@ -457,7 +460,7 @@ class SelectionList(VCont):
             self.__enter__()
             for option in kwargs["options"]:
                 btn = Button(text=option, width_percent=100, has_outline=False,
-                             can_select=True, on_select=self._on_select)
+                             can_select=True, on_select=self._on_select, margin=int(self.settings.margin//2), border_radius=0)
                 if option in previously_selected:
                     btn.status.select()
                 self._option_buttons.append(btn)
@@ -523,11 +526,13 @@ class DropMenu(HCont):
     def _on_init(self):
         self._super = super()
         self._super._on_init()
+        self._down_arrow_string = "v"  # ▼
+        self._up_arrow_string = "^"  # ▲
         self.__enter__()
         self._selected_button = Button(
-            text="", on_click=self._selected_click, margin=0)
+            text="", on_click=self._selected_click, margin=1)
         self._arrow_button = Button(
-            text="▼", on_click=self._arrow_click, margin=0)
+            text=self._down_arrow_string, on_click=self._arrow_click, margin=1)
         self.__exit__()
         w = max(self.settings.width-self._arrow_button.settings.width -
                 self._selected_button.settings.margin*3, 1)
@@ -546,7 +551,7 @@ class DropMenu(HCont):
             self._options_cont.__enter__()
             for option in kwargs["options"]:
                 btn = Button(text=option, has_outline=False,
-                             on_click=self._option_click, width_percent=100)
+                             on_click=self._option_click, width_percent=100, margin=int(self.settings.margin//2), border_radius=0)
                 self._option_buttons.append(btn)
             self._options_cont.__exit__()
             if not self._selected_button.text and len(kwargs["options"]) > 0:
@@ -563,6 +568,14 @@ class DropMenu(HCont):
             if not kwargs["direction"] in ["down", "up"]:
                 raise _wuib._WithUIException(
                     f"Only down and up directions are allowed for drop menus, not '{self._direction}'")
+        if "down_arrow" in kwargs:
+            self._down_arrow_string = kwargs["down_arrow"]
+            self.toggle_menu()
+            self.toggle_menu()
+        if "up_arrow" in kwargs:
+            self._up_arrow_string = kwargs["up_arrow"]
+            self.toggle_menu()
+            self.toggle_menu()
 
     def _option_click(self, btn):
         self._selected_button.set(text=btn.text)
@@ -595,17 +608,19 @@ class DropMenu(HCont):
 
     def open_menu(self):
         self._options_cont.settings.visible = True
-        self._arrow_button.set(text="▲" if self._direction == "down" else "▼")
+        self._arrow_button.set(
+            text=self._up_arrow_string if self._direction == "down" else self._down_arrow_string)
 
     def close_menu(self):
         self._options_cont.settings.visible = False
-        self._arrow_button.set(text="▼" if self._direction == "down" else "▲")
+        self._arrow_button.set(
+            text=self._down_arrow_string if self._direction == "down" else self._up_arrow_string)
 
     def toggle_menu(self):
         self._options_cont.settings.visible = not self._options_cont.settings.visible
-        self._arrow_button.set(text=("▲" if self._direction == "down" else "▼")
+        self._arrow_button.set(text=(self._up_arrow_string if self._direction == "down" else self._down_arrow_string)
                                if self._options_cont.settings.visible
-                               else ("▼" if self._direction == "down" else "▲"))
+                               else (self._down_arrow_string if self._direction == "down" else self._up_arrow_string))
 
     def apply_settings_to_options(self, **kwargs):
         for btn in self._option_buttons:
@@ -614,6 +629,13 @@ class DropMenu(HCont):
     @property
     def menu_open(self):
         return self._options_cont.settings.visible
+
+    @menu_open.setter
+    def menu_open(self, value):
+        if value:
+            self.open_menu()
+        else:
+            self.close_menu()
 
 
 class Window(VCont):
@@ -632,6 +654,8 @@ class Window(VCont):
         self._close_button = Button(
             text="X", margin=0, on_click=self._on_close_click)
         self._title_cont.__exit__()
+        self._line_separator = Line(
+            height=self.settings.outline_width, width_percent=100)
         self._elements_cont = VCont(**INVISIBLE, margin=0, **SCROLLABLE)
         self.__exit__()
         self._finished_instantiating = True
@@ -670,9 +694,9 @@ class Window(VCont):
 
     def _update(self):
         self._elements_cont.settings.height = self._elements_cont.settings.min_height = self._elements_cont.settings.max_height = max(
-            1, self.settings.height-self._title_cont.settings.height-self._title_cont.settings.margin*2)
+            1, self.settings.height-self._title_cont.settings.height-self._title_cont.settings.margin*2-(self._line_separator.settings.height+self._line_separator.settings.margin if self._line_separator.settings.visible else 0))
         self._elements_cont.settings.width = self._elements_cont.settings.min_width = self._elements_cont.settings.max_width = max(
-            1, self.settings.width)
+            1, self.settings.width-self.settings.margin)
         self._title_cont.settings.width = self._title_cont.settings.min_width = self._title_cont.settings.max_width = max(
             1, self.settings.width)
         self._close_button.settings.width = self._close_button.settings.height
@@ -694,18 +718,22 @@ class Window(VCont):
         self.hide()
         if self._on_close:
             self._on_close(self)
-            
+
     @property
     def title_button(self):
         return self._title_button
-    
+
     @property
     def close_button(self):
         return self._close_button
-    
+
     @property
     def inner_container(self):
         return self._elements_cont
+
+    @property
+    def line_separator(self):
+        return self._line_separator
 
 
 class UserSettings:
@@ -719,6 +747,89 @@ class UserSettings:
     @classmethod
     def get(cls, name: str) -> dict[str, _wuib.typing.Any]:
         return cls.settings[name]
+
+
+class Themes:
+    PURPLE = {
+        'background_color': (65, 0, 117),
+        'hover_color': (101, 0, 171),
+        "dark_bg_color": (31, 0, 61),
+        "click_color": (45, 0, 75),
+        "outline_color": (67, 0, 137),
+        "inner_color": "purple",
+        "text_color": "white",
+    }
+    GREEN = {
+        "background_color": (0, 78, 18),
+        "dark_bg_color": (0, 35, 8),
+        "hover_color": (0, 115, 35),
+        "click_color": (0, 58, 14),
+        "outline_color": (0, 95, 20),
+        "inner_color": (0, 255, 155),
+        "text_color": "white",
+    }
+    BLUE = {
+        "dark_bg_color": (0, 10, 60),
+        "background_color": (0, 30, 125),
+        "hover_color": (0, 48, 170),
+        "click_color": (0, 20, 105),
+        "outline_color": (0, 50, 145),
+        "inner_color": (0, 100, 255),
+        "text_color": "white",
+    }
+    RED = {
+        "dark_bg_color": (55, 0, 0),
+        "background_color": (115, 0, 0),
+        "hover_color": (155, 0, 0),
+        "click_color": (100, 0, 0),
+        "outline_color": (135, 0, 0),
+        "inner_color": (255, 0, 0),
+        "text_color": "white",
+    }
+    DARK = {
+        "dark_bg_color": (15, 15, 15),
+        "background_color": (30, 30, 30),
+        "hover_color": (40, 40, 40),
+        "click_color": (22, 22, 22),
+        "outline_color": (50, 50, 50),
+        "inner_color": (0, 100, 200),
+        "text_color": "white",
+    }
+
+    LIGHT = {
+        "dark_bg_color": (245, 245, 245),
+        "background_color": (255, 255, 255),
+        "hover_color": (242, 242, 242),
+        "click_color": (230, 230, 230),
+        "outline_color": (230, 230, 230),
+        "inner_color": (0, 150, 255),
+        "text_color": "black",
+    }
+
+    @classmethod
+    def set_default(cls, builtin_color_theme_or_name):
+        theme = None
+        if isinstance(builtin_color_theme_or_name, str):
+            themes = {"red": cls.RED, "blue": cls.BLUE, "green": cls.GREEN, "purple": cls.PURPLE, "dark": cls.DARK,
+                      "light": cls.LIGHT, "black": cls.DARK, "white": cls.LIGHT}
+            if builtin_color_theme_or_name.lower() not in themes:
+                raise _wuib._WithUIException(
+                    f"There isn't any builtin theme with name '{builtin_color_theme_or_name}'. Available are red, blue, green, purple, dark, light")
+            theme = themes[builtin_color_theme_or_name.lower()]
+        else:
+            theme = builtin_color_theme_or_name
+            for col in ["dark_bg_col", "background_color", "hover_color", 
+                        "click_color", "outline_color", "inner_color", "text_color", ]:
+                if col not in theme:
+                    raise _wuib._WithUIException(
+                        f"The theme dict provided must contain the '{col}' key")
+        _wuib._Settings.dark_bg_color = theme["dark_bg_color"]
+        _wuib._Settings.background_color = theme["background_color"]
+        _wuib._Settings.hover_color = theme["hover_color"]
+        _wuib._Settings.click_color = theme["click_color"]
+        _wuib._Settings.outline_color = theme["outline_color"]
+        _wuib._Settings.inner_color = theme["inner_color"]
+        _wuib._Settings.text_color = theme["text_color"]
 
 
 INVISIBLE: dict[str, bool] = {
@@ -736,6 +847,10 @@ STATIC: dict[str, bool] = {
     "can_hover": False,
     "can_select": False,
 }
+
+MODERN_DOWN_ARROW = "▼"
+MODERN_UP_ARROW = "▲"
+
 
 def settings_help(element: str | type[_wuib._Element] | _wuib._Element = "Element", setting: str = None) -> str | dict[str, str]:
     element_name = element

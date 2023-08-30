@@ -44,8 +44,8 @@ class _Settings:
     ignore_scroll: bool = False
     parent_anchor: str = None
     # style
-    border_radius: _Number = 7
-    outline_width: _Number = 2
+    border_radius: _Number = 4
+    outline_width: _Number = 1
     padding: _Number = 3
     # style color
     background_color: _ColorValue = (30, 30, 30)
@@ -62,7 +62,7 @@ class _Settings:
     # text
     font_size: int = 20
     font_name: str = None
-    sysfont_name: str = "Segoe UI"
+    sysfont_name: str = "NotoSans"
     font_antialas: bool = True
     font: pygame.font.Font = pygame.font.SysFont(sysfont_name, font_size)
     # size
@@ -207,7 +207,9 @@ _SETTINGS_HELP = {
         "selected_option": "Manually set the currently selected option",
         "options": "Change the options shown in the menu",
         "menu_optn": "Manually set the options menu visibility",
-        "direction": "Whether the options menu should appear below or above the arrow. Available are up and down"
+        "direction": "Whether the options menu should appear below or above the arrow. Available are up and down",
+        "down_arrow": "If you don't like the default down arrow or your font doesn't have it you can try with another character",
+        "up_arrow": "If you don't like the default up arrow or your font doesn't have it you can try with another character",
     },
     "Window": {
         "title": "The title button text. To change more settings, use the title_button property",
@@ -308,10 +310,10 @@ class _Element:
             self._tree_index = len(_UIManager.tree_elements)
             _UIManager.tree_elements.append(self)
             self._tree_element = self
-            
+
         self._on_init()
         self.set(**kwargs)
-        
+
     def _get_tree(self):
         if self in _UIManager.tree_elements:
             return self
@@ -344,10 +346,12 @@ class _Element:
         for name, val in kwargs.items():
             if hasattr(self.settings, name):
                 setattr(self.settings, name, val)
-        
+
         if "min_max_size" in kwargs:
-            self.settings.width =self.settings.min_width=self.settings.max_width= kwargs["min_max_size"][0]
-            self.settings.height =self.settings.min_height=self.settings.max_height= kwargs["min_max_size"][1]
+            self.settings.width = self.settings.min_width = self.settings.max_width = kwargs[
+                "min_max_size"][0]
+            self.settings.height = self.settings.min_height = self.settings.max_height = kwargs[
+                "min_max_size"][1]
         if "min_size" in kwargs:
             self.settings.min_width = kwargs["min_size"][0]
             self.settings.min_height = kwargs["min_size"][1]
@@ -359,9 +363,11 @@ class _Element:
             self.settings.width = kwargs["size"][0]
             self.settings.height = kwargs["size"][1]
         if "min_max_width" in kwargs:
-            self.settings.width = self.settings.max_width = self.settings.min_width = kwargs["min_max_width"]
+            self.settings.width = self.settings.max_width = self.settings.min_width = kwargs[
+                "min_max_width"]
         if "min_max_height" in kwargs:
-            self.settings.height = self.settings.max_height = self.settings.min_height = kwargs["min_max_height"]
+            self.settings.height = self.settings.max_height = self.settings.min_height = kwargs[
+                "min_max_height"]
         if "font_size" in kwargs or "font_name" in kwargs:
             func = pygame.font.SysFont if self.settings.sysfont_name else pygame.font.Font
             font_name = self.settings.sysfont_name if self.settings.sysfont_name else self.settings.font_name
