@@ -21,7 +21,7 @@ value = 0
 vspeed = 0.2
 vdir = 1
 
-wui.Themes.set_default("blue")
+wui.Themes.set_default("dark")
 
 with wui.VCont(**wui.UserSettings.get("vcont")) as cont:
     label = wui.Label(text="Label", anchor="center",
@@ -34,6 +34,7 @@ with wui.VCont(**wui.UserSettings.get("vcont")) as cont:
     sl = wui.SelectionList(
         options=["ciao", "come", "stai", "io", "bene"], max_height=100, min_width=200)
     s = wui.Slider(direction="horizontal", value_percent=30, slider_size=300)
+    wui.Entryline(width=400)
     wui.DropMenu(options=["io", "sono", "tua", "madre",
                  "in", "realta"], min_max_width=200)
     # wui.Line(height=2, width_percent=100)
@@ -45,6 +46,7 @@ with wui.Window(min_max_size=(300, 300)):
 
 while True:
     for e in pygame.event.get():
+        wui.register_event(e)
         if e.type == pygame.QUIT:
             pygame.quit()
             sys.exit()

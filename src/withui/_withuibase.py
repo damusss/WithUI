@@ -23,6 +23,9 @@ class _UIManager:
     mouse_rel = None
     keys = None
     was_clicking = False
+    frame_events: list[pygame.event.Event] = []
+    frame_ended = False
+    ticks = 0
 
     @classmethod
     def update(cls):
@@ -32,6 +35,7 @@ class _UIManager:
         cls.mouse_pos = pygame.mouse.get_pos()
         cls.mouse_rel = pygame.mouse.get_rel()
         cls.keys = pygame.key.get_pressed()
+        cls.ticks = pygame.time.get_ticks()
 
 
 class _Settings:
@@ -248,8 +252,13 @@ class _Status:
         self._released = False
         any_other = False
         for el in _UIManager.top_elements:
-            if not el is element and not el is element._parent and el.settings.visible and el.settings.active and el._rect.collidepoint(_UIManager.mouse_pos):
+            if not el is element and not el is element._parent and el.settings.visible and \
+                el.settings.active and el._rect.collidepoint(_UIManager.mouse_pos)and el._tree_element._tree_index == element._tree_element._tree_index:
                 any_other = True
+        for el in _UIManager.tree_elements:
+            if el._tree_index > element._tree_element._tree_index:
+                if el.settings.active and el.settings.visible and el._rect.collidepoint(_UIManager.mouse_pos):
+                    any_other = True
         was_hovering = self.hovering
         self.hovering = element._rect.collidepoint(
             _UIManager.mouse_pos) and element.settings.can_hover and \
