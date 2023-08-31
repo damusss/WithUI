@@ -13,4 +13,4 @@
 
 # [Themes](themes.md)
 
-# [Extra constats and functions](extra.md)
+# [Extra constants and functions](extra.md)
