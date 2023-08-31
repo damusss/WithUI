@@ -66,7 +66,7 @@ class Themes:
         "text_color": "white",
     }
     DARK = {
-        "dark_bg_color": (15, 15, 15),
+        "dark_bg_color": (17, 17, 17),
         "background_color": (30, 30, 30),
         "hover_color": (40, 40, 40),
         "click_color": (22, 22, 22),

@@ -7,6 +7,7 @@ _Number = int | float
 _Coordinate = pygame.Vector2 | tuple[_Number,
                                      _Number] | list[_Number] | typing.Iterable[_Number]
 
+_ZERO_VEC = pygame.Vector2()
 _SCROLLBAR_SIZE = 15
 _SLIDER_SIZE = 15
 _HANDLE_SIZE = 25
@@ -153,9 +154,9 @@ _SETTINGS_HELP = {
         "on_copy": "Called when the selection of the entryline is copied",
         "on_paste": "Called when a paste operation occurs"
     },
-    "GIF":{
-        "inner_anchor":"Where the images are anchored",
-        "frames":"The gif frames",
+    "GIF": {
+        "inner_anchor": "Where the images are anchored",
+        "frames": "The gif frames",
         "frame_cooldown": "How much time between every frame in milliseconds"
     }
 }

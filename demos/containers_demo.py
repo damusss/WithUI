@@ -16,6 +16,7 @@ with wui.HCont(size=(W, H), **wui.NORESIZE, center_elements=True):
             for i in range(7):
                 wui.Button(text=f"Button {i}", parent_anchor=random.choice(
                     ["center", "top", "bottom"]))
+
     with wui.VCont(**wui.NORESIZE, height_percent=100, width_percent=40, margin=0, center_elements=True, **wui.INVISIBLE):
         with wui.VCont(width_percent=80, height_percent=80, **wui.NORESIZE, **wui.SCROLLABLE):
             for i in range(20):

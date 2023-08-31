@@ -25,7 +25,7 @@ vdir = 1
 
 wui.Themes.set_default("dark")
 
-with wui.VCont(**wui.UserSettings.get("vcont")) as cont:
+with wui.VCont(**wui.UserSettings.get("vcont")):
     label = wui.Label(text="Label", anchor="center",
                       min_width=100, min_height=50)
     wui.Line(height=3, width_percent=100)

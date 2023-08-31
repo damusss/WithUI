@@ -73,7 +73,7 @@ class Window(VCont):
             1, self.settings.width-self._close_button.settings.width-self._title_cont.settings.margin*2)
         if self._can_drag and self._title_button.status.pressing:
             self._topleft += pygame.Vector2(_wuib._UIManager.mouse_rel)
-        if self.status.pressing:
+        if self.status._absolute_hover and _wuib._UIManager.mouse_buttons[0]:
             atleastone = False
             for element in _wuib._UIManager.tree_elements:
                 if element._tree_index > self._tree_index:

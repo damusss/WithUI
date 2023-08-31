@@ -1,7 +1,7 @@
 import pygame
 import typing
 
-from ._constants import _ColorValue, _Coordinate, _Number, _FONT_ALIGN_LOOKUP
+from ._constants import _ColorValue, _Coordinate, _Number, _FONT_ALIGN_LOOKUP, _ZERO_VEC
 
 pygame.init()
 
@@ -120,6 +120,7 @@ class _Status:
         self._clicked = False
         self._released = False
         self._started_pressing = False
+        self._absolute_hover = False
 
     def check_click(self) -> bool:
         return self._clicked
@@ -136,6 +137,16 @@ class _Status:
     def toggle_selection(self):
         self.selected = not self.selected
 
+    def _any_child_hover(self, any_other_child, element: "_Element"):
+        if element._is_cont:
+            for child in element._children:
+                if child._is_cont and child.status._hovering and (child._v_scrollbar.settings.visible or child._h_scrollbar.settings.visible):
+                    return True
+                elif child._is_cont:
+                    any_other_child = self._any_child_hover(
+                        any_other_child, child)
+        return any_other_child
+
     def _update(self, element: "_Element"):
         self._clicked = False
         self._released = False
@@ -148,16 +159,18 @@ class _Status:
             if el._tree_index > element._tree_element._tree_index:
                 if el.settings.active and el.settings.visible and el._rect.collidepoint(_UIManager.mouse_pos):
                     any_other = True
-        if element._is_cont:
-            for child in element._children:
-                if child._is_cont and child.status._hovering:
-                    any_other = True
+        any_other_child = self._any_child_hover(False, element)
+        # if element._is_cont:
+        #    for child in element._children:
+        #        if child._is_cont and child.status._hovering:
+        #            any_other_child = True
         was_hovering = self.hovering
-        self._hovering = element._rect.collidepoint(
+        self._absolute_hover = element._rect.collidepoint(
             _UIManager.mouse_pos) and \
             not any_other and (
                 not element.parent or element.parent._rect.collidepoint(_UIManager.mouse_pos)) \
             and (not element.parent or (element.parent.settings.active and element.parent.settings.visible))
+        self._hovering = self._absolute_hover and not any_other_child
         self.hovering = self._hovering and element.settings.can_hover
         if self.hovering and element.settings.on_hover:
             element.settings.on_hover(element)
@@ -165,9 +178,11 @@ class _Status:
         was_pressing = self.pressing
         self.pressing = (
             self.hovering or self._started_pressing) and _UIManager.mouse_buttons[0] and element.settings.can_press
+
         if not was_hovering and _UIManager.was_clicking and not self._started_pressing:
             self.pressing = False
             self.hovering = False
+            self._hovering = False
         if self.pressing and element.settings.on_pressed:
             element.settings.on_pressed(element)
 
@@ -322,8 +337,6 @@ class _Element:
     def _pre_update(self):
         if self.settings.free_position:
             self._topleft = self.settings.free_position
-        if self.settings.ignore_scroll:
-            self.settings.offset = -self._parent.settings.scroll_offset
         self._rect.topleft = self._real_topleft
         if self.settings.width_percent and self.parent:
             self.settings.width = (
@@ -372,8 +385,8 @@ class _Element:
                              self.settings.border_radius)
         surface.blit(self._surface, (self._topleft +
                                      self.settings.offset -
-                                     ((self._parent.settings.scroll_offset if not self.settings.ignore_scroll else -self._parent.settings.scroll_offset)
-                                      if self._parent else pygame.Vector2()))
+                                     ((self._parent.settings.scroll_offset if not self.settings.ignore_scroll else _ZERO_VEC)
+                                      if self._parent else _ZERO_VEC))
                      if not self.settings.draw_top else self._real_topleft)
 
     def _kill(self):
@@ -395,9 +408,9 @@ class _Element:
     def _real_topleft(self):
         return (self._topleft +
                 self.settings.offset +
-                (self._parent._real_topleft if self._parent else pygame.Vector2()) -
-                ((self._parent.settings.scroll_offset if not self.settings.ignore_scroll else -self._parent.settings.scroll_offset)
-                    if self._parent else pygame.Vector2()))
+                (self._parent._real_topleft if self._parent else _ZERO_VEC) -
+                ((self._parent.settings.scroll_offset if not self.settings.ignore_scroll else _ZERO_VEC)
+                    if self._parent else _ZERO_VEC))
 
     def show(self):
         self.settings.visible = True
