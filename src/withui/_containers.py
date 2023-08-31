@@ -68,6 +68,7 @@ class VCont(_wuib._Element):
 
     def _on_init(self):
         self.set(has_dark_bg=True, show_hover=False, show_press=False)
+        self._h_cont, self._v_cont = False, True
         self._tot_w, self._tot_h = self.settings.width, self.settings.height
         self._scroll_margin_h = self._scroll_margin_v = 0
         self._v_scrollbar = self._h_scrollbar = None
@@ -136,6 +137,7 @@ class HCont(_wuib._Element):
 
     def _on_init(self):
         self.set(has_dark_bg=True, can_hover=False, can_press=False)
+        self._h_cont, self._v_cont = True, False
         self._tot_w, self._tot_h = self.settings.width, self.settings.height
         self._scroll_margin_h = self._scroll_margin_v = 0
         self._v_scrollbar = self._h_scrollbar = None

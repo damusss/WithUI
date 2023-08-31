@@ -3,7 +3,9 @@
 import pygame
 import sys
 import withui as wui
+
 pygame.init()
+
 screen = pygame.display.set_mode((1000, 700))
 clock = pygame.time.Clock()
 pygame.display.set_caption("WithUI Testing/Showcase")
@@ -30,6 +32,7 @@ with wui.VCont(**wui.UserSettings.get("vcont")) as cont:
     checkbox = wui.Checkbox(min_max_size=(30, 30))
     button = wui.Button(text="RANDOM BUTTON", width=100, auto_resize_h=False)
     wui.Slideshow(surfaces=surfaces)
+    wui.GIF(frames=surfaces, frame_cooldown=500)
     pb = wui.ProgressBar(width_percent=50, height=40, padding=4, value=0)
     sl = wui.SelectionList(
         options=["ciao", "come", "stai", "io", "bene"], max_height=100, min_width=200)

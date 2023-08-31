@@ -1,10 +1,7 @@
 Elements:
 
-- text box (multi line label)
-- text area (multi line entryline)
+None
 
 Features:
 
 - scroll with mousewheel
-- documentation
-- readme.md: examples

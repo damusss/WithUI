@@ -7,6 +7,7 @@ The settings for each element are stored in an object that is unique for every e
 Every element that is not a base element has often some custom settings. Always use the `set()` method.
 
 To know about each setting use the following method:
+
 ```py
 withui.pretty_print(withui.settings_help(element))
 # or
@@ -22,6 +23,7 @@ The `Settings` class is privated in the base module, but it's still accessible r
 WARNING: If you want to change font settings, refresh the font object!
 
 ### Example
+
 ```py
 withui.DefaultSettings.margin = 10
 # all elements by default have this margin
@@ -37,6 +39,7 @@ Yes you can, you only need to use the `UserSettings` static class.
 It holds your custom settings in a dictionary and you can retrieve them. They are saved in dictionaries, so when you call the `get()` method don't forget to unpack it (unpack operator: `**`)
 
 ### Example
+
 ```py
 withui.UserSettings.add(
     "custom_button",

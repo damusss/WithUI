@@ -6,7 +6,10 @@
 
 A wrapper of different elements in order to create either a dropdown or a dropup, depending on the direction
 
+![Drop Menu Example](../images/dropmenu.png)
+
 You can use the following settings:
+
 - selected_option
 - options
 - direction - up/down
@@ -22,6 +25,6 @@ When the user select a new option, the `on_select` callback is called.
 
 This methods change the visibility of the options menu.
 
-## apply_settings_to_options(**kwargs)
+## apply_settings_to_options(\*\*kwargs)
 
 This method will pass the kwargs settings to each option button, this way you can customize them easly.

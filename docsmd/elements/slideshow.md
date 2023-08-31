@@ -6,11 +6,14 @@
 
 A wrapper element that has an `Image` in the center and 2 arrow buttons at the sides. The image shows a surface and the buttons allow to go to the next or previous surface.
 
+![Slideshow Example](../images/slideshow.png)
+
 When the user change surface, the `on_select` callback is called and the current surface is passed.
 
 The `surface` property will return the current surface.
 
 You can use this settings:
+
 - surfaces
 - surface_index
 

@@ -94,3 +94,55 @@ class Slideshow(HCont):
     @property
     def surface(self) -> pygame.Surface:
         return self.image._inner_surf
+
+class GIF(_wuib._Element):
+    def _on_init(self):
+        self.set(has_background=False,has_outline=False,can_press=False,can_hover=False)
+        self._frames = []
+        self._inner_surf = None
+        self._inner_rect = None
+        self._inner_anchor = "center"
+        self._frame_index = 0
+        self._frame_cooldown = 100
+        self._last_change = 0
+        
+    def _on_set(self, **kwargs):
+        if "inner_anchor" in kwargs:
+            self._inner_anchor = kwargs["inner_anchor"]
+        if "frames" in kwargs:
+            self._frames = kwargs["frames"]
+            self._frame_index = 0
+            if self._frames:
+                self._inner_surf = self._frames[int(self._frame_index)]
+                self._inner_rect = self._inner_surf.get_rect()
+                self._set_h(self._inner_rect.height+self.settings.padding*2)
+                self._set_w(self._inner_rect.width+self.settings.padding*2)
+        if "frame_cooldown" in kwargs:
+            self._frame_cooldown = kwargs["frame_cooldown"]
+        
+    def _on_draw(self):
+        if self._inner_surf:
+            _wuib._anchor_inner(self._inner_anchor, self._rect,
+                                self._inner_rect, self.settings.padding)
+            self._surface.blit(
+                self._inner_surf, self._inner_rect.topleft-self._real_topleft)
+        
+    def _update(self):
+        self._pre_update()
+        
+        if not self.settings.active or not self._frames: return
+        if _wuib._UIManager.ticks - self._last_change >= self._frame_cooldown:
+            self._last_change = pygame.time.get_ticks()
+            self._frame_index += 1
+            if self._frame_index >= len(self._frames):
+                self._frame_index = 0
+            self._inner_surf = self._frames[int(self._frame_index)]
+            self._inner_rect = self._inner_surf.get_rect()
+            self._set_h(self._inner_rect.height+self.settings.padding*2)
+            self._set_w(self._inner_rect.width+self.settings.padding*2)
+        
+        self._post_update()
+        
+    @property
+    def frame(self):
+        return self._inner_surf

@@ -15,10 +15,12 @@ Only have a `put(text:str)` method to update the clipboard and `get()` to retrie
 ## INVISIBLE
 
 It's a shortcut for the following settings
+
 - has_background = False
 - has_outline = False
 
 Shortcut to remove the background and outline
+
 ```py
 # don't forget the unpack operator!
 withui.Button(text="Invis Bg", **withui.INVISIBLE)
@@ -27,10 +29,12 @@ withui.Button(text="Invis Bg", **withui.INVISIBLE)
 ## SCROLLABLE
 
 It's a shortcut for the following settings
+
 - can_scroll_h = True
 - can_scroll_v = True
 
 Shortcut to allow containers to scroll
+
 ```py
 # don't forget the unpack operator!
 with withui.VCont(**withui.SCROLLABLE, min_max_height=500) as cont:
@@ -40,13 +44,29 @@ with withui.VCont(**withui.SCROLLABLE, min_max_height=500) as cont:
 ## STATIC
 
 It's a shortcut for the following settings
+
 - can_hover = False
 - can_press = False
 
 Shortcut to remove interactiveness from an element
+
 ```py
 # don't forget the unpack operator!
 withui.Button(text="I cannot be interacted in any way!", **withui.STATIC)
+```
+
+## NORESIZE
+
+It's a shortcut for the following settings
+
+- auto_resize_h = False
+- auto_resize_v = False
+
+Shortcut to remove auto resizing on all axis
+
+```py
+# don't forget the unpack operator!
+withui.VCont(size=(500,500), **withui.NORESIZE)
 ```
 
 ## MODERN_ARROW_DOWN / MODERN_ARROW_UP

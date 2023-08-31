@@ -152,5 +152,10 @@ _SETTINGS_HELP = {
         "on_change": "Called when the entryline text is changed",
         "on_copy": "Called when the selection of the entryline is copied",
         "on_paste": "Called when a paste operation occurs"
+    },
+    "GIF":{
+        "inner_anchor":"Where the images are anchored",
+        "frames":"The gif frames",
+        "frame_cooldown": "How much time between every frame in milliseconds"
     }
 }

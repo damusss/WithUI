@@ -5,7 +5,7 @@ from . import _base as _wuib
 from ._bars import Slider, ProgressBar
 from ._buttons import Button, Checkbox
 from ._containers import VCont, HCont
-from ._images import Image, Slideshow
+from ._images import Image, Slideshow, GIF
 from ._menus import DropMenu, SelectionList
 from ._separators import Line, Separator
 from ._texts import Label, Entryline
@@ -135,6 +135,11 @@ STATIC: dict[str, bool] = {
     "can_press": False,
     "can_hover": False,
     "can_select": False,
+}
+
+NORESIZE: dict[str, bool] = {
+    "auto_resize_h": False,
+    "auto_resize_v": False
 }
 
 MODERN_DOWN_ARROW = "▼"

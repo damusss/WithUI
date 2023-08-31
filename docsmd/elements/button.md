@@ -4,6 +4,8 @@
 
 An interactive element that can contain a text or a surface.
 
+![Button Example](../images/button.png)
+
 To enable text wrapping set `auto_resize_h` to False.
 
 You can change the text/surface anchoring with the `inner_anchor` setting.

@@ -15,7 +15,10 @@ You can set a theme as default or apply its settings to some elements only.
 - Dark/Black
 - Light/White - This theme suck. Make your own if you really need it
 
+![Themes Example](images/themes.png)
+
 ## Usage
+
 ```py
 # DEFAULT THEME
 withui.Themes.set_default("green") # you can use any capitalization

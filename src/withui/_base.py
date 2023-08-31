@@ -98,6 +98,15 @@ class _Settings:
     can_scroll_v: bool = False
     scroll_offset: pygame.Vector2 = None
 
+    def __init__(self):
+        for attr, value in vars(_Settings).items():
+            if attr.startswith("__") and attr.endswith("__"):
+                continue
+            if not hasattr(self, attr):
+                continue
+            setattr(self, attr, value)
+            self.font.align = pygame.FONT_CENTER
+
 
 _Settings.font.align = pygame.FONT_CENTER
 
@@ -247,7 +256,6 @@ class _Element:
             self.settings.max_width = kwargs["max_size"][0]
             self.settings.max_height = kwargs["max_size"][1]
         if "size" in kwargs:
-            print(kwargs["size"])
             self.settings.width = kwargs["size"][0]
             self.settings.height = kwargs["size"][1]
         if "min_max_width" in kwargs:
@@ -309,19 +317,23 @@ class _Element:
         if self.settings.ignore_scroll:
             self.settings.offset = -self._parent.settings.scroll_offset
         self._rect.topleft = self._real_topleft
-        if self.settings.width_percent and self.parent and self.settings.auto_resize_h:
+        if self.settings.width_percent and self.parent:
             self.settings.width = (
-                (self.parent.settings.width-self.settings.margin*2-self.parent._scroll_margin_h)*self.settings.width_percent)/100
-        if self.settings.height_percent and self.parent and self.settings.auto_resize_v:
+                (self.parent.settings.width-(self.settings.margin*2+(self.settings.margin*(len(self._parent._children)-2) if
+                                                                     self._parent._h_cont else 0))-self.parent._scroll_margin_h) *
+                self.settings.width_percent)/100
+        if self.settings.height_percent and self.parent:
             self.settings.height = (
-                (self.parent.settings.height-self.settings.margin*2-self.parent._scroll_margin_v)*self.settings.height_percent)/100
+                (self.parent.settings.height-(self.settings.margin*2+(self.settings.margin*(len(self._parent._children)-2) if
+                                                                      self._parent._v_cont else 0))-self.parent._scroll_margin_v) *
+                self.settings.height_percent)/100
         self._rect.w = self.settings.width
         self._rect.h = self.settings.height
         if self.settings.active:
             self.status._update(self)
         if self._surface.get_width() != int(self.settings.width) or self._surface.get_height() != int(self.settings.height):
             self._surface = pygame.Surface(
-                (int(self.settings.width), int(self.settings.height)), pygame.SRCALPHA)
+                (max(int(self.settings.width), 1), max(int(self.settings.height), 1)), pygame.SRCALPHA)
             self._on_font_change()
 
     def _post_update(self):

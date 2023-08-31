@@ -5,7 +5,10 @@
 Very featureful input box of a single line.
 Also supports selection, copy/paste and some callbacks.
 
+![Entryline Example](../images/entryline.png)
+
 Customize it with the following settings:
+
 - text
 - cursor_width
 - blink_time

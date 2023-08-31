@@ -30,8 +30,9 @@ class _VScrollbar(_wuib._Element):
         self._pre_update()
 
         self.handle_size = (self.settings.height *
-                            self._parent.settings.height)/self._parent._tot_h
-        scroll_v = (self.handle_pos*self._parent._tot_h)/self.settings.height
+                            self._parent.settings.height)/(self._parent._tot_h+0.001)
+        scroll_v = (self.handle_pos*self._parent._tot_h) / \
+            (self.settings.height+0.001)
         self.handle.settings.free_position = pygame.Vector2(0, self.handle_pos)
         self.handle.settings.height = self.handle.settings.min_height = self.handle.settings.max_height = self.handle_size
         self._parent.settings.scroll_offset.y = scroll_v
@@ -75,8 +76,9 @@ class _HScrollbar(_wuib._Element):
         self._pre_update()
 
         self.handle_size = (self.settings.width *
-                            self._parent.settings.width)/self._parent._tot_w
-        scroll_v = (self.handle_pos*self._parent._tot_w)/self.settings.width
+                            self._parent.settings.width)/(self._parent._tot_w+0.001)
+        scroll_v = (self.handle_pos*self._parent._tot_w) / \
+            (self.settings.width+0.001)
         self.handle.settings.free_position = pygame.Vector2(self.handle_pos, 0)
         self.handle.settings.width = self.handle.settings.min_width = self.handle.settings.max_width = self.handle_size
         self._parent.settings.scroll_offset.x = scroll_v

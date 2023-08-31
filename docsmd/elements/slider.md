@@ -4,7 +4,10 @@
 
 A multidirectional slider element.
 
+![Slider Example](../images/slider.png)
+
 Available directions:
+
 - horizontal
 - vertical
 
@@ -15,6 +18,7 @@ You can get the value_percent with the `value_percent` property
 When the slider moves the `on_move` callback is called.
 
 You can modify this settings:
+
 - slider_size (width or height depends on direction)
 - direction
 - value

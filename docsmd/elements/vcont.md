@@ -4,6 +4,8 @@
 
 Container that organizes the children elements vertically.
 
+![VCont Example](../images/vcont.png)
+
 The horizontal anchor of elements is decided by their `parent_anchor` setting.
 
 Scrolling is enabled by the `can_scroll_h` and `can_scroll_v` settings.
