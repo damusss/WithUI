@@ -89,17 +89,17 @@ class Window(VCont):
             self._on_close(self)
 
     @property
-    def title_button(self)->Button:
+    def title_button(self) -> Button:
         return self._title_button
 
     @property
-    def close_button(self)->Button:
+    def close_button(self) -> Button:
         return self._close_button
 
     @property
-    def inner_container(self)->VCont:
+    def inner_container(self) -> VCont:
         return self._elements_cont
 
     @property
-    def line_separator(self)->Line:
+    def line_separator(self) -> Line:
         return self._line_separator

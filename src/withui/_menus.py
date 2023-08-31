@@ -164,6 +164,7 @@ class DropMenu(HCont):
         w = max(self.settings.width-self._arrow_button.settings.width -
                 self._selected_button.settings.margin*3, 1)
         self._selected_button.settings.width = self._selected_button.settings.max_width = self._selected_button.settings.min_width = w
+        self._arrow_button.settings.height = self._arrow_button.settings.min_height = self._arrow_button.settings.max_height = self._selected_button.settings.height
 
     def open_menu(self):
         self._options_cont.settings.visible = True
@@ -184,17 +185,17 @@ class DropMenu(HCont):
     def apply_settings_to_options(self, **kwargs):
         for btn in self._option_buttons:
             btn.set(**kwargs)
-    
-    @property     
-    def selected(self)->str:
+
+    @property
+    def selected(self) -> str:
         return self._selected_button._text
-    
+
     @selected.setter
     def selected(self, value):
         self._selected_button.set(text=value)
 
     @property
-    def menu_open(self)->bool:
+    def menu_open(self) -> bool:
         return self._options_cont.settings.visible
 
     @menu_open.setter

@@ -3,6 +3,7 @@ import pygame
 from ._constants import _SCROLLBAR_SIZE
 from . import _base as _wuib
 
+
 class _VScrollbar(_wuib._Element):
     def _on_init(self):
         self.set(can_press=False, can_hover=False, has_dark_bg=True, width=_SCROLLBAR_SIZE,

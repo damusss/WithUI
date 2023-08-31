@@ -3,11 +3,14 @@
 # WithUI Documentation
 
 # [Setup](setup.md)
-# [Elements](elements.md)
+
+# Elements
 
 - ### [Base Element](element.md)
 - ### [Element Settings](settings.md)
 - ### [Element Status](status.md)
-- ### [Elements](elements.md)
+- ### [Element List](elements.md)
+
 # [Themes](themes.md)
+
 # [Extra constats and functions](extra.md)

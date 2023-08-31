@@ -2,7 +2,7 @@
 
 import pygame
 import sys
-from withui import withui as wui
+import withui as wui
 pygame.init()
 screen = pygame.display.set_mode((1000, 700))
 clock = pygame.time.Clock()

@@ -65,10 +65,10 @@ class _Settings:
     sysfont_name: str = "NotoSans"
     font_antialas: bool = True
     font: pygame.font.Font = pygame.font.SysFont(sysfont_name, font_size)
-    text_align:str = "center"
+    text_align: str = "center"
     # size
-    auto_resize_h:bool=True
-    auto_resize_v:bool=True
+    auto_resize_h: bool = True
+    auto_resize_v: bool = True
     width: _Number = 0
     height: _Number = 0
     min_width: _Number = 0
@@ -97,7 +97,10 @@ class _Settings:
     can_scroll_h: bool = False
     can_scroll_v: bool = False
     scroll_offset: pygame.Vector2 = None
+
+
 _Settings.font.align = pygame.FONT_CENTER
+
 
 class _Status:
     hovering: bool = False
@@ -262,10 +265,11 @@ class _Element:
             if isinstance(kwargs["text_align"], int):
                 self.settings.font.align = kwargs["text_align"]
             else:
-                if kwargs["text_align"] in ["center","left","right"]:
+                if kwargs["text_align"] in ["center", "left", "right"]:
                     self.settings.font.align = _FONT_ALIGN_LOOKUP[kwargs["text_align"]]
                 else:
-                    raise _WithUIException(f"Text alignment can only be left, right or center, not '{kwargs['text_align']}'")
+                    raise _WithUIException(
+                        f"Text alignment can only be left, right or center, not '{kwargs['text_align']}'")
             self._on_font_change()
         if "text_color" in kwargs:
             self._on_font_change()
@@ -389,6 +393,9 @@ class _Element:
 
     def point_hovering(self, point: _Coordinate) -> bool:
         return self._rect.collidepoint(point)
+
+    def is_tree(self) -> bool:
+        return self in _UIManager.tree_elements
 
     @property
     def parent(self) -> "_Element":

@@ -77,6 +77,9 @@ class Slideshow(HCont):
             self._surface_index = len(self._surfaces)-1
         self.image.set(surface=self._surfaces[self._surface_index] if len(
             self._surfaces) > 0 else None)
+        if self.settings.on_select:
+            self.settings.on_select(
+                self.image._inner_surf, self._surface_index)
 
     def _on_right_click(self, btn):
         self._surface_index += 1
@@ -84,6 +87,9 @@ class Slideshow(HCont):
             self._surface_index = 0
         self.image.set(surface=self._surfaces[self._surface_index] if len(
             self._surfaces) > 0 else None)
+        if self.settings.on_select:
+            self.settings.on_select(
+                self.image._inner_surf, self._surface_index)
 
     @property
     def surface(self) -> pygame.Surface:

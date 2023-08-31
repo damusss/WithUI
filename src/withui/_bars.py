@@ -68,7 +68,7 @@ class Slider(_wuib._Element):
         self.set(can_hover=False, can_press=False, can_select=False, has_dark_bg=True,
                  height=_SLIDER_SIZE, margin=_HANDLE_SIZE//2)
         self._direction = "horizontal"
-        self.handle:Button = Button(free_position=pygame.Vector2(0, 0))
+        self.handle: Button = Button(free_position=pygame.Vector2(0, 0))
         self._handle_pos = 0
         self._handle_size = _HANDLE_SIZE
         self._on_move = None
@@ -145,5 +145,5 @@ class Slider(_wuib._Element):
             self._on_move(self, self._handle_pos-previous)
 
     @property
-    def value_percent(self)->_wuib._Number:
+    def value_percent(self) -> _wuib._Number:
         return self.value*100

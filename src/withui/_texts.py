@@ -95,12 +95,12 @@ class Entryline(_wuib._Element):
             self._on_copy = kwargs["on_copy"]
         if "on_paste" in kwargs:
             self._on_paste = kwargs["on_paste"]
-            
+
     def _on_font_change(self):
         if not self._text:
             return
         self._inner_surf = self.settings.font.render(
-                self._text, self.settings.font_antialas, self.settings.text_color)
+            self._text, self.settings.font_antialas, self.settings.text_color)
 
     def _on_draw(self):
         if self._inner_surf:
@@ -383,6 +383,13 @@ class Entryline(_wuib._Element):
         if not self._text:
             return
         self._cursor = pygame.math.clamp(int(index), 0, len(self._text))
+
+    def is_selecting(self) -> bool:
+        return self._selecting
+
+    def stop_selecting(self):
+        self._selecting = False
+        self._sel_start = self._sel_end = 0
 
     @property
     def focused(self) -> bool:

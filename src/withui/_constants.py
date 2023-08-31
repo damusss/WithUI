@@ -12,7 +12,7 @@ _SLIDER_SIZE = 15
 _HANDLE_SIZE = 25
 
 _FONT_ALIGN_LOOKUP = {
-    "center":pygame.FONT_CENTER,
+    "center": pygame.FONT_CENTER,
     "left": pygame.FONT_LEFT,
     "right": pygame.FONT_RIGHT
 }

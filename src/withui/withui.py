@@ -179,6 +179,12 @@ def pretty_format(json_like_object: _wuib.typing.Any) -> str:
     return formatted
 
 
+def refresh_default_font():
+    func = pygame.font.SysFont if _wuib._Settings.sysfont_name else pygame.font.Font
+    font_name = _wuib._Settings.sysfont_name if _wuib._Settings.sysfont_name else _wuib._Settings.font_name
+    _wuib._Settings.font = func(font_name, _wuib._Settings.font_size)
+
+
 def register_event(event: pygame.event.Event):
     if _wuib._UIManager.frame_ended:
         _wuib._UIManager.frame_ended = False
