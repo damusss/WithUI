@@ -39,8 +39,6 @@ class _VScrollbar(_wuib._Element):
 
         self._post_update()
 
-        # print(self.parent.__class__.__name__)
-
         if self.handle.status.pressing:
             self.handle_pos += _wuib._UIManager.mouse_rel[1]
             if self.handle_pos < 0:
@@ -49,6 +47,17 @@ class _VScrollbar(_wuib._Element):
                 self.handle_pos = self.settings.height-self.handle_size
             self.handle.settings.free_position = pygame.Vector2(
                 0, self.handle_pos)
+        else:
+            if self.status._hovering or self.handle.status.hovering or self._parent.status._hovering:
+                for event in _wuib._UIManager.frame_events:
+                    if event.type == pygame.MOUSEWHEEL:
+                        self.handle_pos += (-event.y*self.settings.height)/100
+                        if self.handle_pos < 0:
+                            self.handle_pos = 0
+                        if self.handle_pos > self.settings.height-self.handle_size:
+                            self.handle_pos = self.settings.height-self.handle_size
+                        self.handle.settings.free_position = pygame.Vector2(
+                            0, self.handle_pos)
 
 
 class _HScrollbar(_wuib._Element):
@@ -69,6 +78,7 @@ class _HScrollbar(_wuib._Element):
         if not self._parent.settings.can_scroll_h or self._parent.settings.width >= self._parent._tot_w:
             self.settings.active = False
             self.settings.visible = False
+            return
         self.settings.width = self.settings.max_width = self.settings.min_width = self._parent.settings.width
         self.settings.free_position = pygame.Vector2(
             0, self._parent.settings.height-self.settings.height)
@@ -93,3 +103,14 @@ class _HScrollbar(_wuib._Element):
                 self.handle_pos = self.settings.width-self.handle_size
             self.handle.settings.free_position = pygame.Vector2(
                 self.handle_pos, 0)
+        elif not self._parent.settings.can_scroll_v or self._parent.settings.height >= self._parent._tot_h:
+            if self.status._hovering or self.handle.status.hovering or self._parent.status._hovering:
+                for event in _wuib._UIManager.frame_events:
+                    if event.type == pygame.MOUSEWHEEL:
+                        self.handle_pos += (-event.y*self.settings.width)/100
+                        if self.handle_pos < 0:
+                            self.handle_pos = 0
+                        if self.handle_pos > self.settings.width-self.handle_size:
+                            self.handle_pos = self.settings.width-self.handle_size
+                        self.handle.settings.free_position = pygame.Vector2(
+                            self.handle_pos, 0)

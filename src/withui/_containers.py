@@ -72,6 +72,7 @@ class VCont(_wuib._Element):
         self._tot_w, self._tot_h = self.settings.width, self.settings.height
         self._scroll_margin_h = self._scroll_margin_v = 0
         self._v_scrollbar = self._h_scrollbar = None
+        self._is_cont = True
 
 
 class HCont(_wuib._Element):
@@ -141,3 +142,4 @@ class HCont(_wuib._Element):
         self._tot_w, self._tot_h = self.settings.width, self.settings.height
         self._scroll_margin_h = self._scroll_margin_v = 0
         self._v_scrollbar = self._h_scrollbar = None
+        self._is_cont = True

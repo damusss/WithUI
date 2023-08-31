@@ -34,13 +34,12 @@ with wui.VCont(**wui.UserSettings.get("vcont")) as cont:
     wui.Slideshow(surfaces=surfaces)
     wui.GIF(frames=surfaces, frame_cooldown=500)
     pb = wui.ProgressBar(width_percent=50, height=40, padding=4, value=0)
-    sl = wui.SelectionList(
+    wui.SelectionList(
         options=["ciao", "come", "stai", "io", "bene"], max_height=100, min_width=200)
-    s = wui.Slider(direction="horizontal", value_percent=30, slider_size=300)
+    wui.Slider(direction="horizontal", value_percent=30, slider_size=300)
     wui.Entryline(width=400)
     wui.DropMenu(options=["io", "sono", "tua", "madre",
                  "in", "realta"], min_max_width=200)
-    # wui.Line(height=2, width_percent=100)
     wui.Separator(min_max_size=(800, 800))
 
 with wui.Window(min_max_size=(300, 300)):

@@ -112,12 +112,14 @@ _Settings.font.align = pygame.FONT_CENTER
 
 
 class _Status:
-    hovering: bool = False
-    pressing: bool = False
-    selected: bool = False
-    _clicked = False
-    _released = False
-    _started_pressing = False
+    def __init__(self):
+        self.hovering: bool = False
+        self.pressing: bool = False
+        self.selected: bool = False
+        self._hovering = False
+        self._clicked = False
+        self._released = False
+        self._started_pressing = False
 
     def check_click(self) -> bool:
         return self._clicked
@@ -146,12 +148,17 @@ class _Status:
             if el._tree_index > element._tree_element._tree_index:
                 if el.settings.active and el.settings.visible and el._rect.collidepoint(_UIManager.mouse_pos):
                     any_other = True
+        if element._is_cont:
+            for child in element._children:
+                if child._is_cont and child.status._hovering:
+                    any_other = True
         was_hovering = self.hovering
-        self.hovering = element._rect.collidepoint(
-            _UIManager.mouse_pos) and element.settings.can_hover and \
+        self._hovering = element._rect.collidepoint(
+            _UIManager.mouse_pos) and \
             not any_other and (
                 not element.parent or element.parent._rect.collidepoint(_UIManager.mouse_pos)) \
             and (not element.parent or (element.parent.settings.active and element.parent.settings.visible))
+        self.hovering = self._hovering and element.settings.can_hover
         if self.hovering and element.settings.on_hover:
             element.settings.on_hover(element)
 
@@ -197,6 +204,7 @@ class _Element:
             self._topleft, (self.settings.width, self.settings.height))
         self._surface = pygame.Surface((1, 1), pygame.SRCALPHA)
         self._tree_index = -1
+        self._is_cont = False
         if _UIManager.last_element:
             _UIManager.last_element._add_to_queue(self)
             self._parent = _UIManager.last_element
