@@ -1,5 +1,6 @@
 import pygame
 
+from ._constants import _SLIDER_SIZE, _HANDLE_SIZE
 from . import _base as _wuib
 from ._buttons import Button
 
@@ -65,11 +66,11 @@ class ProgressBar(_wuib._Element):
 class Slider(_wuib._Element):
     def _on_init(self):
         self.set(can_hover=False, can_press=False, can_select=False, has_dark_bg=True,
-                 height=_wuib._SLIDER_SIZE, margin=_wuib._HANDLE_SIZE//2)
+                 height=_SLIDER_SIZE, margin=_HANDLE_SIZE//2)
         self._direction = "horizontal"
         self.handle:Button = Button(free_position=pygame.Vector2(0, 0))
         self._handle_pos = 0
-        self._handle_size = _wuib._HANDLE_SIZE
+        self._handle_size = _HANDLE_SIZE
         self._on_move = None
         self.value: float = 0
 
@@ -90,9 +91,9 @@ class Slider(_wuib._Element):
                 raise _wuib._WithUIException(
                     f"Supported slider directions are horizontal and vertical, not '{self._direction}'")
             if self._direction == "horizontal":
-                self.settings.height = _wuib._SLIDER_SIZE
+                self.settings.height = _SLIDER_SIZE
             else:
-                self.settings.width = _wuib._SLIDER_SIZE
+                self.settings.width = _SLIDER_SIZE
         if "value" in kwargs:
             self.value = pygame.math.clamp(kwargs["value"], 0, 1)
             if self._direction == "horizontal":

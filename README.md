@@ -36,6 +36,4 @@ Any variable, property, method or class starting with one or 2 underscores shoul
 element._parent; withui._Element(); element._update() // do not change this!
 ```
 
-# raise NotImplementedError()
-
-This section of the readme will be filled soon!
+# [WithUI Documentation](docsmd/docs.md)

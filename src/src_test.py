@@ -28,7 +28,7 @@ with wui.VCont(**wui.UserSettings.get("vcont")) as cont:
                       min_width=100, min_height=50)
     wui.Line(height=3, width_percent=100)
     checkbox = wui.Checkbox(min_max_size=(30, 30))
-    button = wui.Button(text="RANDOM BUTTON")
+    button = wui.Button(text="RANDOM BUTTON", width=100, auto_resize_h=False)
     wui.Slideshow(surfaces=surfaces)
     pb = wui.ProgressBar(width_percent=50, height=40, padding=4, value=0)
     sl = wui.SelectionList(
@@ -53,7 +53,7 @@ while True:
 
     screen.fill("black")
 
-    # label.set(text=f"FPS {clock.get_fps():.0f}")
+    label.set(text=f"FPS {clock.get_fps():.0f}")
 
     value += vspeed*vdir
     if value > pb.max_value or value < pb.min_value:

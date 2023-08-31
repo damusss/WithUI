@@ -16,19 +16,12 @@ class Label(_wuib._Element):
             self._inner_anchor = kwargs["inner_anchor"]
         if "text" in kwargs:
             self._text = str(kwargs["text"])
-            self._inner_surf = self.settings.font.render(
-                self._text, self.settings.font_antialas, self.settings.text_color)
-            self._inner_rect = self._inner_surf.get_rect()
-            self._set_h(self._inner_rect.height+self.settings.padding*2)
-            self._set_w(self._inner_rect.width+self.settings.padding*2)
-            
+            self._refresh_text()
+
     def _on_font_change(self):
-        if not self._text: return
-        self._inner_surf = self.settings.font.render(
-            self._text, self.settings.font_antialas, self.settings.text_color)
-        self._inner_rect = self._inner_surf.get_rect()
-        self._set_h(self._inner_rect.height+self.settings.padding*2)
-        self._set_w(self._inner_rect.width+self.settings.padding*2)
+        if not self._text:
+            return
+        self._refresh_text()
 
     def _on_draw(self):
         if self._inner_surf:
@@ -37,6 +30,13 @@ class Label(_wuib._Element):
             self._surface.blit(
                 self._inner_surf, self._inner_rect.topleft-self._real_topleft)
 
+    def _refresh_text(self):
+        self._inner_surf = self.settings.font.render(
+            self._text, self.settings.font_antialas, self.settings.text_color,  wraplength=self.settings.width if not self.settings.auto_resize_h else 0)
+        self._inner_rect = self._inner_surf.get_rect()
+        self._set_h(self._inner_rect.height+self.settings.padding*2)
+        self._set_w(self._inner_rect.width+self.settings.padding*2)
+
     @property
     def text(self) -> str:
         return self._text
@@ -44,18 +44,13 @@ class Label(_wuib._Element):
     @text.setter
     def text(self, value):
         self.text = str(value)
-        self._inner_surf = self.settings.font.render(
-            self.text, self.settings.font_antialas, self.settings.text_color)
-        self._inner_rect = self._inner_surf.get_rect()
-        self._set_h(self._inner_rect.height+self.settings.padding*2)
-        self._set_w(self._inner_rect.width+self.settings.padding*2)
+        self._refresh_text()
 
 
 class Entryline(_wuib._Element):
     def _on_init(self):
         self._text = ""
-        self._inner_surf = None
-        self._inner_rect = None
+        self._inner_surf = self._inner_rect = None
         self._cursor = 0
         self._blink_time = 400
         self._show_cursor = True
@@ -65,7 +60,7 @@ class Entryline(_wuib._Element):
         self._text_x = 0
         self._cut_width = 0
         self._last_action = None
-        self._action_time = None
+        self._action_time = 0
         self._action_cooldown = 40
         self._start_action = 0
         self._wait_cooldown = 800
@@ -100,6 +95,12 @@ class Entryline(_wuib._Element):
             self._on_copy = kwargs["on_copy"]
         if "on_paste" in kwargs:
             self._on_paste = kwargs["on_paste"]
+            
+    def _on_font_change(self):
+        if not self._text:
+            return
+        self._inner_surf = self.settings.font.render(
+                self._text, self.settings.font_antialas, self.settings.text_color)
 
     def _on_draw(self):
         if self._inner_surf:
@@ -228,11 +229,7 @@ class Entryline(_wuib._Element):
         return self._sel_start, self._sel_end
 
     def _sel_cut_w(self, sel_s, sel_e):
-        sel_s_txt = self._text[:sel_s]
-        sel_s_cw = self.settings.font.size(sel_s_txt)[0]
-        sel_e_txt = self._text[:sel_e]
-        sel_e_cw = self.settings.font.size(sel_e_txt)[0]
-        return sel_s_cw, sel_e_cw
+        return self.settings.font.size(self._text[:sel_s])[0], self.settings.font.size(self._text[:sel_e])[0]
 
     def _remove_selection(self):
         if not self._text or not self._selecting or self._sel_start == self._sel_end:
@@ -360,7 +357,7 @@ class Entryline(_wuib._Element):
     def remove_selection(self):
         self._remove_selection()
 
-    def get_selection(self):
+    def get_selection(self) -> str | None:
         if not self._selecting or not self._text or self._sel_start == self._sel_end:
             return None
         sel_s, sel_e = self._sel_order()
@@ -405,6 +402,5 @@ class Entryline(_wuib._Element):
     @text.setter
     def text(self, value):
         self._text = str(value)
-        if self._text:
-            self._inner_surf = self.settings.font.render(
-                self._text, self.settings.font_antialas, self.settings.text_color)
+        self._inner_surf = self.settings.font.render(
+            self._text, self.settings.font_antialas, self.settings.text_color)

@@ -1,21 +1,23 @@
 import pygame
 
+from ._constants import _SCROLLBAR_SIZE
 from . import _base as _wuib
+from ._scrollbars import _VScrollbar, _HScrollbar
 
 
 class VCont(_wuib._Element):
     def _on_enter(self):
         self._v_scrollbar._kill() if self._v_scrollbar else None
         self._h_scrollbar._kill() if self._h_scrollbar else None
-        self._v_scrollbar = _wuib._VScrollbar()
-        self._h_scrollbar = _wuib._HScrollbar()
+        self._v_scrollbar = _VScrollbar()
+        self._h_scrollbar = _HScrollbar()
 
     def _update(self):
         self._pre_update()
         last: _wuib._Element = None
         tot_h = longest = 0
-        self._scroll_margin_h = _wuib._SCROLLBAR_SIZE if self._v_scrollbar.settings.visible and self._v_scrollbar.settings.active else 0
-        self._scroll_margin_v = _wuib._SCROLLBAR_SIZE if self._h_scrollbar.settings.visible and self._h_scrollbar.settings.active else 0
+        self._scroll_margin_h = _SCROLLBAR_SIZE if self._v_scrollbar.settings.visible and self._v_scrollbar.settings.active else 0
+        self._scroll_margin_v = _SCROLLBAR_SIZE if self._h_scrollbar.settings.visible and self._h_scrollbar.settings.active else 0
         for child in self._children:
             if child.settings.draw_top or child.settings.free_position or not child.settings.visible or not child.settings.active:
                 continue
@@ -75,15 +77,15 @@ class HCont(_wuib._Element):
     def _on_enter(self):
         self._v_scrollbar._kill() if self._v_scrollbar else None
         self._h_scrollbar._kill() if self._h_scrollbar else None
-        self._v_scrollbar = _wuib._VScrollbar()
-        self._h_scrollbar = _wuib._HScrollbar()
+        self._v_scrollbar = _VScrollbar()
+        self._h_scrollbar = _HScrollbar()
 
     def _update(self):
         self._pre_update()
         last: _wuib._Element = None
         tot_w = tallest = 0
-        self._scroll_margin_h = _wuib._SCROLLBAR_SIZE if self._v_scrollbar.settings.visible and self._v_scrollbar.settings.active else 0
-        self._scroll_margin_v = _wuib._SCROLLBAR_SIZE if self._h_scrollbar.settings.visible and self._h_scrollbar.settings.active else 0
+        self._scroll_margin_h = _SCROLLBAR_SIZE if self._v_scrollbar.settings.visible and self._v_scrollbar.settings.active else 0
+        self._scroll_margin_v = _SCROLLBAR_SIZE if self._h_scrollbar.settings.visible and self._h_scrollbar.settings.active else 0
         for child in self._children:
             if child.settings.draw_top or child.settings.free_position or not child.settings.visible or not child.settings.active:
                 continue

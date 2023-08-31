@@ -1,5 +1,6 @@
 import pygame
 
+from . import _constants
 from . import _base as _wuib
 from ._bars import Slider, ProgressBar
 from ._buttons import Button, Checkbox
@@ -146,8 +147,8 @@ def settings_help(element: str | type[_wuib._Element] | _wuib._Element = "Elemen
         element_name = element.__name__
     elif isinstance(element_name, _wuib._Element):
         element_name = element.__class__.__name__
-    if element_name in _wuib._SETTINGS_HELP:
-        settings = _wuib._SETTINGS_HELP[element_name].copy()
+    if element_name in _constants._SETTINGS_HELP:
+        settings = _constants._SETTINGS_HELP[element_name].copy()
         if element_name != "Element":
             settings.update(_wuib._SETTINGS_HELP["Element"])
         if setting is not None:

@@ -18,10 +18,7 @@ class Image(_wuib._Element):
             self._inner_anchor = kwargs["inner_anchor"]
         if "surface" in kwargs:
             self._inner_surf = kwargs["surface"]
-            if self._inner_surf:
-                self._inner_rect = self._inner_surf.get_rect()
-                self._set_h(self._inner_rect.height+self.settings.padding*2)
-                self._set_w(self._inner_rect.width+self.settings.padding*2)
+            self._refresh_surface()
 
     def _on_draw(self):
         if self._inner_surf:
@@ -30,18 +27,20 @@ class Image(_wuib._Element):
             self._surface.blit(
                 self._inner_surf, self._inner_rect.topleft-self._real_topleft)
 
-    @property
-    def surface(self)->pygame.Surface|None:
-        return self._inner_surf
-
-    @surface.setter
-    def surface(self, value):
-        self._text = ""
-        self._inner_surf = value
+    def _refresh_surface(self):
         if self._inner_surf:
             self._inner_rect = self._inner_surf.get_rect()
             self._set_h(self._inner_rect.height+self.settings.padding*2)
             self._set_w(self._inner_rect.width+self.settings.padding*2)
+
+    @property
+    def surface(self) -> pygame.Surface | None:
+        return self._inner_surf
+
+    @surface.setter
+    def surface(self, value):
+        self._inner_surf = value
+        self._refresh_surface()
 
 
 class Slideshow(HCont):
