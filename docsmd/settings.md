@@ -46,9 +46,9 @@ withui.UserSettings.add(
 )
 
 # don't forget the unpack operator!
-withui.Button(**withui.Usersettings.get("custom_button"), text="Button 1")
-withui.Button(**withui.Usersettings.get("custom_button"), text="Button 2")
-withui.Button(**withui.Usersettings.get("custom_button"), text="Button 3")
+withui.Button(**withui.UserSettings.get("custom_button"), text="Button 1")
+withui.Button(**withui.UserSettings.get("custom_button"), text="Button 2")
+withui.Button(**withui.UserSettings.get("custom_button"), text="Button 3")
 ```
 
 ## [-> next (element status)](status.md)
