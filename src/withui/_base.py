@@ -1,6 +1,5 @@
 import pygame
 import typing
-import json
 pygame.init()
 
 _ColorValue = pygame.Color | str | tuple[int, int,
@@ -220,6 +219,18 @@ _SETTINGS_HELP = {
         "on_close": "Called when the close button is clicked. Before the callback is called the window is hidden",
         "topleft": "Modify the topleft position of the window manually",
         "can_drag": "Whether holding the title button will make the window move or not"
+    },
+    "Entryline": {
+        "text": "Manually set the text in the entryline",
+        "cursor_width": "How wide is the cursor",
+        "blink_time": "How frequently the cursor blinks",
+        "enable_empty": "Whether the placeholder will be inserted or not",
+        "placeholder": "The text inserted when the entryline is empty and out of focus, if enable_empty is false",
+        "focused": "Manually focus or unfocus the entryline",
+        "on_focus": "Called when the entryline is focused or unfocused",
+        "on_change": "Called when the entryline text is changed",
+        "on_copy": "Called when the selection of the entryline is copied",
+        "on_paste": "Called when a paste operation occurs"
     }
 }
 
@@ -253,7 +264,7 @@ class _Status:
         any_other = False
         for el in _UIManager.top_elements:
             if not el is element and not el is element._parent and el.settings.visible and \
-                el.settings.active and el._rect.collidepoint(_UIManager.mouse_pos)and el._tree_element._tree_index == element._tree_element._tree_index:
+                    el.settings.active and el._rect.collidepoint(_UIManager.mouse_pos) and el._tree_element._tree_index == element._tree_element._tree_index:
                 any_other = True
         for el in _UIManager.tree_elements:
             if el._tree_index > element._tree_element._tree_index:
@@ -334,6 +345,7 @@ class _Element:
     def _on_enter(self): ...
     def _on_exit(self): ...
     def _on_draw(self): ...
+    def _on_font_change(self):...
 
     def _update(self):
         self._pre_update()
@@ -381,6 +393,9 @@ class _Element:
             func = pygame.font.SysFont if self.settings.sysfont_name else pygame.font.Font
             font_name = self.settings.sysfont_name if self.settings.sysfont_name else self.settings.font_name
             self.settings.font = func(font_name, self.settings.font_size)
+            self._on_font_change()
+        if "text_color" in kwargs:
+            self._on_font_change()
         if "draw_top" in kwargs:
             if self.settings.draw_top:
                 if self not in _UIManager.top_elements:
