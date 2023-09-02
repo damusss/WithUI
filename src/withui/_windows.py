@@ -76,7 +76,7 @@ class Window(VCont):
         if self.status._absolute_hover and _wuib._UIManager.mouse_buttons[0] and self.settings.active:
             atleastone = False
             for element in _wuib._UIManager.root_elements:
-                if element._root_index > self._root_index:
+                if element._root_index > self._root_index and not element._always_top:
                     element._root_index -= 1
                     atleastone = True
             if atleastone:

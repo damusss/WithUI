@@ -11,6 +11,8 @@ from ._separators import Line, Separator
 from ._texts import Label, Entryline
 from ._windows import Window
 
+from . import withuiext as ext
+
 DefaultSettings = _wuib._Settings
 EmptyElement = _wuib._Element
 
@@ -204,6 +206,14 @@ def get_all_elements() -> list[_wuib._Element]:
 def apply_settings_to_all_elements(**kwargs):
     for element in _wuib._UIManager.all_elements:
         element.set(**kwargs)
+
+
+def set_hover_sound(sound: pygame.mixer.Sound):
+    _wuib._UIManager.hover_sound = sound
+
+
+def set_click_sound(sound: pygame.mixer.Sound):
+    _wuib._UIManager.click_sound = sound
 
 
 def disable_keyboard_navigation():

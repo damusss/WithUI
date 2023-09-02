@@ -28,9 +28,12 @@ vdir = 1
 
 wui.Themes.set_default("dark")
 
+tt_manager = wui.ext.TooltipManager()
+
 with wui.VCont(**wui.UserSettings.get("vcont")) as cont:
     label = wui.Label(text="Label", anchor="center",
                       min_width=100, min_height=50)
+    tt_manager.register_tooltip(label, "FPS Label", "display fps to check the performance of the UI")
     wui.Line(height=3, width_percent=100)
     checkbox = wui.Checkbox(min_max_size=(30, 30))
     button = wui.Button(text="RANDOM BUTTON", width=100, auto_resize_h=False, has_background=False,
@@ -41,7 +44,8 @@ with wui.VCont(**wui.UserSettings.get("vcont")) as cont:
     wui.SelectionList(
         options=["ciao", "come", "stai", "io", "bene"], max_height=100, min_width=200)
     wui.Slider(direction="horizontal", value_percent=30, slider_size=300)
-    wui.Entryline(width=400)
+    e = wui.Entryline(width=400)
+    tt_manager.register_tooltip(e, "Entryline", "another tooltip example wow incredible i know")
     wui.DropMenu(options=["io", "sono", "tua", "madre",
                  "in", "realta"], min_max_width=200)
     wui.Separator(min_max_size=(800, 800))
@@ -71,6 +75,7 @@ while True:
     pb.set(value=value)
 
     wui.update_ui()
+    tt_manager.update()
     wui.draw_ui(screen)
 
     clock.tick(0)

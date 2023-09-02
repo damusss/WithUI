@@ -4,4 +4,9 @@ Elements:
 
 Features:
 
-- keyboard nav (try at least)
+- ext module:
+    - tooltip
+    - text typing animation
+    - bg grow on hover
+
+AFTER, UPDATE DOCS!

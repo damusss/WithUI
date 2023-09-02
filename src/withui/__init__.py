@@ -1,4 +1,5 @@
 from .withui import (
+    ext, # TooltipManager, HoverGrowAnimation, TypingAnimation
     Button,
     Label,
     Entryline,
@@ -36,5 +37,7 @@ from .withui import (
     enable_keyboard_navigation,
     disable_keyboard_navigation,
     get_all_elements,
-    apply_settings_to_all_elements
+    apply_settings_to_all_elements,
+    set_click_sound,
+    set_hover_sound,
 )

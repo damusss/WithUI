@@ -27,6 +27,8 @@ class _UIManager:
     tabbed_element: "_Element" = None
     navigation_enabled: bool = True
     space_pressed: bool = False
+    hover_sound: pygame.mixer.Sound | None = None
+    click_sound: pygame.mixer.Sound | None = None
 
     @classmethod
     def update(cls):
@@ -159,7 +161,7 @@ class _Settings:
     sysfont_name: str | None = "NotoSans"
     font_antialas: bool = True
     font: pygame.font.Font = pygame.font.SysFont(sysfont_name, font_size)
-    text_align: str = "center"
+    text_align: str | int = pygame.FONT_CENTER
     # size
     auto_resize_h: bool = True
     auto_resize_v: bool = True
@@ -181,6 +183,8 @@ class _Settings:
     on_pressed: typing.Callable[[typing.Any], None] | None = None
     on_select: typing.Callable[[typing.Any], None] | None = None
     on_deselect:  typing.Callable[[typing.Any], None] | None = None
+    on_mouse_enter:  typing.Callable[[typing.Any], None] | None = None
+    on_mouse_exit:  typing.Callable[[typing.Any], None] | None = None
     # event flags
     can_hover: bool = True
     can_press: bool = True
@@ -203,7 +207,8 @@ class _Settings:
             if not hasattr(self, attr):
                 continue
             setattr(self, attr, value)
-            self.font.align = pygame.FONT_CENTER
+        self.font = pygame.font.Font = pygame.font.SysFont(self.sysfont_name, self.font_size)
+        self.font.align = pygame.FONT_CENTER
 
 
 _Settings.font.align = pygame.FONT_CENTER
@@ -278,6 +283,17 @@ class _Status:
             self.pressing = False
             self.hovering = False
             self._hovering = False
+
+        if self.hovering and not was_hovering:
+            if element.settings.on_mouse_enter:
+                element.settings.on_mouse_enter(element)
+            if _UIManager.hover_sound is not None:
+                _UIManager.hover_sound.play()
+
+        if not self.hovering and was_hovering:
+            if element.settings.on_mouse_exit:
+                element.settings.on_mouse_exit(element)
+
         if self.pressing and element.settings.on_pressed:
             element.settings.on_pressed(element)
 
@@ -300,6 +316,8 @@ class _Status:
                 self.selected = False
                 if element.settings.on_deselect:
                     element.settings.on_deselect(element)
+            if _UIManager.click_sound is not None:
+                _UIManager.click_sound.play()
 
 
 class _Element:
@@ -318,6 +336,7 @@ class _Element:
         self._surface = pygame.Surface((1, 1), pygame.SRCALPHA)
         self._root_index = -1
         self._is_cont = False
+        self._always_top = False
         if _UIManager.last_element:
             _UIManager.last_element._add_to_queue(self)
             self._parent = _UIManager.last_element
@@ -386,20 +405,22 @@ class _Element:
         if "min_max_height" in kwargs:
             self.settings.height = self.settings.max_height = self.settings.min_height = kwargs[
                 "min_max_height"]
-        if "font_size" in kwargs or "font_name" in kwargs:
-            func = pygame.font.SysFont if self.settings.sysfont_name else pygame.font.Font
-            font_name = self.settings.sysfont_name if self.settings.sysfont_name else self.settings.font_name
-            self.settings.font = func(font_name, self.settings.font_size)
-            self._on_font_change()
         if "text_align" in kwargs:
             if isinstance(kwargs["text_align"], int):
                 self.settings.font.align = kwargs["text_align"]
             else:
                 if kwargs["text_align"] in ["center", "left", "right"]:
-                    self.settings.font.align = _FONT_ALIGN_LOOKUP[kwargs["text_align"]]
+                    self.settings.text_align = _FONT_ALIGN_LOOKUP[kwargs["text_align"]]
+                    self.settings.font.align = self.settings.text_align
                 else:
                     raise _WithUIException(
                         f"Text alignment can only be left, right or center, not '{kwargs['text_align']}'")
+            self._on_font_change()
+        if "font_size" in kwargs or "font_name" in kwargs:
+            func = pygame.font.SysFont if self.settings.sysfont_name else pygame.font.Font
+            font_name = self.settings.sysfont_name if self.settings.sysfont_name else self.settings.font_name
+            self.settings.font = func(font_name, self.settings.font_size)
+            self.settings.font.align = self.settings.text_align
             self._on_font_change()
         if "text_color" in kwargs:
             self._on_font_change()
