@@ -1,7 +1,7 @@
 import pygame
 import typing
 
-from ._constants import _ColorValue, _Coordinate, _Number, _FONT_ALIGN_LOOKUP, _ZERO_VEC
+from ._constants import _ColorValue, _Coordinate, _FONT_ALIGN_LOOKUP, _ZERO_VEC
 
 pygame.init()
 
@@ -12,7 +12,7 @@ class _WithUIException(Exception):
 
 class _UIManager:
     last_element: "_Element" = None
-    tree_elements: list["_Element"] = []
+    root_elements: list["_Element"] = []
     top_elements: list["_Element"] = []
     mouse_buttons = None
     mouse_pos = None
@@ -22,6 +22,7 @@ class _UIManager:
     frame_events: list[pygame.event.Event] = []
     frame_ended = False
     ticks = 0
+    all_elements: list["_Element"] = []
 
     @classmethod
     def update(cls):
@@ -37,16 +38,16 @@ class _UIManager:
 class _Settings:
     # positioning
     offset: pygame.Vector2 = None
-    margin: _Number = 5
+    margin: float = 5
     center_elements: bool = False
-    free_position: pygame.Vector2 = None
+    free_position: pygame.Vector2 | None = None
     draw_top: bool = False
     ignore_scroll: bool = False
-    parent_anchor: str = None
+    parent_anchor: str | None = None
     # style
-    border_radius: _Number = 4
-    outline_width: _Number = 1
-    padding: _Number = 3
+    border_radius: float = 4
+    outline_width: float = 1
+    padding: float = 3
     # style color
     background_color: _ColorValue = (30, 30, 30)
     dark_bg_color: _ColorValue = (15, 15, 15)
@@ -55,38 +56,47 @@ class _Settings:
     outline_color: _ColorValue = (50, 50, 50)
     text_color: _ColorValue = (255, 255, 255)
     inner_color: _ColorValue = (0, 100, 200)
+    # style image
+    background_image: pygame.Surface | None = None
+    background_anchor: str = "center"
+    background_padding: float = 0
+    resize_background: bool = False
+    adapt_to_bg: bool = False
+    bg_effect_alpha: int = 255
+    bg_hover_flag: int = pygame.BLEND_RGB_ADD
+    bg_press_flag: int = pygame.BLEND_RGB_SUB
     # style flags
     has_background: bool = True
     has_outline: bool = True
     has_dark_bg: bool = False
     # text
     font_size: int = 20
-    font_name: str = None
-    sysfont_name: str = "NotoSans"
+    font_name: str | None = None
+    sysfont_name: str | None = "NotoSans"
     font_antialas: bool = True
     font: pygame.font.Font = pygame.font.SysFont(sysfont_name, font_size)
     text_align: str = "center"
     # size
     auto_resize_h: bool = True
     auto_resize_v: bool = True
-    width: _Number = 0
-    height: _Number = 0
-    min_width: _Number = 0
-    min_height: _Number = 0
-    max_width: _Number = 0
-    max_height: _Number = 0
-    width_percent: _Number = None
-    height_percent: _Number = None
+    width: float = 0
+    height: float = 0
+    min_width: float = 0
+    min_height: float = 0
+    max_width: float = 0
+    max_height: float = 0
+    width_percent: float | None = None
+    height_percent: float | None = None
     # flags
     visible: bool = True
     active: bool = True
     # events
-    on_hover: typing.Callable[[typing.Any], None] = None
-    on_click: typing.Callable[[typing.Any], None] = None
-    on_release: typing.Callable[[typing.Any], None] = None
-    on_pressed: typing.Callable[[typing.Any], None] = None
-    on_select: typing.Callable[[typing.Any], None] = None
-    on_deselect: typing.Callable[[typing.Any], None] = None
+    on_hover: typing.Callable[[typing.Any], None] | None = None
+    on_click: typing.Callable[[typing.Any], None] | None = None
+    on_release: typing.Callable[[typing.Any], None] | None = None
+    on_pressed: typing.Callable[[typing.Any], None] | None = None
+    on_select: typing.Callable[[typing.Any], None] | None = None
+    on_deselect:  typing.Callable[[typing.Any], None] | None = None
     # event flags
     can_hover: bool = True
     can_press: bool = True
@@ -153,17 +163,13 @@ class _Status:
         any_other = False
         for el in _UIManager.top_elements:
             if not el is element and not el is element._parent and el.settings.visible and \
-                    el.settings.active and el._rect.collidepoint(_UIManager.mouse_pos) and el._tree_element._tree_index == element._tree_element._tree_index:
+                    el.settings.active and el._rect.collidepoint(_UIManager.mouse_pos) and el._root_element._root_index == element._root_element._root_index:
                 any_other = True
-        for el in _UIManager.tree_elements:
-            if el._tree_index > element._tree_element._tree_index:
+        for el in _UIManager.root_elements:
+            if el._root_index > element._root_element._root_index:
                 if el.settings.active and el.settings.visible and el._rect.collidepoint(_UIManager.mouse_pos):
                     any_other = True
         any_other_child = self._any_child_hover(False, element)
-        # if element._is_cont:
-        #    for child in element._children:
-        #        if child._is_cont and child.status._hovering:
-        #            any_other_child = True
         was_hovering = self.hovering
         self._absolute_hover = element._rect.collidepoint(
             _UIManager.mouse_pos) and \
@@ -210,34 +216,38 @@ class _Status:
 class _Element:
     def __init__(self, **kwargs):
         self._children: list["_Element"] = []
-        self._parent: "_Element" = None
+        self._parent: "_Element" | None = None
         self.settings: _Settings = _Settings()
         self.settings.offset, self.settings.scroll_offset = pygame.Vector2(), pygame.Vector2()
         self.status: _Status = _Status()
         self._topleft = pygame.Vector2()
         self._rect = pygame.Rect(
             self._topleft, (self.settings.width, self.settings.height))
+        self._rel_rect = self._rect.copy()
+        self._bg_image: pygame.Surface | None = None
+        self._bg_rect: pygame.Rect | None = None
         self._surface = pygame.Surface((1, 1), pygame.SRCALPHA)
-        self._tree_index = -1
+        self._root_index = -1
         self._is_cont = False
         if _UIManager.last_element:
             _UIManager.last_element._add_to_queue(self)
             self._parent = _UIManager.last_element
-            self._tree_element = self._parent._get_tree()
+            self._root_element = self._parent._get_root()
         else:
             _UIManager.last_element = self
-            self._tree_index = len(_UIManager.tree_elements)
-            _UIManager.tree_elements.append(self)
-            self._tree_element = self
+            self._root_index = len(_UIManager.root_elements)
+            _UIManager.root_elements.append(self)
+            self._root_element = self
+        _UIManager.all_elements.append(self)
 
         self._on_init()
         self.set(**kwargs)
 
-    def _get_tree(self):
-        if self in _UIManager.tree_elements:
+    def _get_root(self):
+        if self in _UIManager.root_elements:
             return self
         elif self.parent:
-            return self.parent._get_tree()
+            return self.parent._get_root()
 
     def _on_init(self): ...
     def _on_set(self, **kwargs): ...
@@ -311,6 +321,10 @@ class _Element:
             if not self.settings.draw_top:
                 if self in _UIManager.top_elements:
                     _UIManager.top_elements.remove(self)
+        if "background_image" in kwargs:
+            self._bg_image = kwargs["background_image"]
+            if self._bg_image:
+                self._bg_rect = self._bg_image.get_rect()
 
         self._on_set(**kwargs)
         return self
@@ -338,6 +352,7 @@ class _Element:
         if self.settings.free_position:
             self._topleft = self.settings.free_position
         self._rect.topleft = self._real_topleft
+        self._rel_rect.topleft = self._topleft+self.settings.offset
         if self.settings.width_percent and self.parent:
             self.settings.width = (
                 (self.parent.settings.width-(self.settings.margin*2+(self.settings.margin*(len(self._parent._children)-2) if
@@ -348,8 +363,28 @@ class _Element:
                 (self.parent.settings.height-(self.settings.margin*2+(self.settings.margin*(len(self._parent._children)-2) if
                                                                       self._parent._v_cont else 0))-self.parent._scroll_margin_v) *
                 self.settings.height_percent)/100
+        if self._bg_image:
+            if self._bg_image.get_width() != self._bg_rect.w or self._bg_image.get_height() != self._bg_rect.h:
+                self._bg_rect = self._bg_image.get_rect()
+        if self.settings.resize_background and self.settings.background_image:
+            if self._rect.w != (self._bg_rect.w + self.settings.background_padding*2) or self._rect.h != (self._bg_rect.h+self.settings.background_padding*2):
+                self._bg_image = pygame.transform.scale(self.settings.background_image, (int(
+                    self._rect.w+self.settings.background_padding*2), int(self._rect.h+self.settings.background_padding*2)))
+                self._bg_rect.size = (self._rect.w+self.settings.background_padding*2,
+                                      self._rect.h+self.settings.background_padding*2)
+        elif self.settings.adapt_to_bg and self._bg_image:
+            if self.settings.width != (self._bg_rect.w + self.settings.background_padding*2) or self.settings.height != (self._bg_rect.h + self.settings.background_padding*2):
+                self._set_w(
+                    (self._bg_rect.w + self.settings.background_padding*2))
+                self._set_h(
+                    (self._bg_rect.h + self.settings.background_padding*2))
+        if self._bg_image:
+            _anchor_inner(self.settings.background_anchor, self._rel_rect,
+                          self._bg_rect, self.settings.background_padding)
+            self._bg_rect.topleft -= self._topleft+self.settings.offset
         self._rect.w = self.settings.width
         self._rect.h = self.settings.height
+        self._rel_rect.size = self._rect.size
         if self.settings.active:
             self.status._update(self)
         if self._surface.get_width() != int(self.settings.width) or self._surface.get_height() != int(self.settings.height):
@@ -374,6 +409,15 @@ class _Element:
                 self.settings.background_color
             pygame.draw.rect(self._surface, bg_col, ((
                 0, 0), self._rect.size), border_radius=self.settings.border_radius)
+        if self._bg_image:
+            fill_col = self.settings.click_color if (self.status.pressing or self.status.selected) and self.settings.show_press else \
+                self.settings.hover_color if self.status.hovering and self.settings.show_hover else None
+            flag = self.settings.bg_press_flag if (self.status.pressing or self.status.selected) and self.settings.show_press else \
+                self.settings.bg_hover_flag if self.status.hovering and self.settings.show_hover else None
+            self._surface.blit(self._bg_image, self._bg_rect)
+            if fill_col is not None:
+                fill_col = (*fill_col, self.settings.bg_effect_alpha)
+                self._surface.fill(fill_col, special_flags=flag)
         self._on_draw()
         for child in self._children:
             if not child.settings.draw_top:
@@ -394,8 +438,10 @@ class _Element:
             self._parent._remove_child(self)
         if self in _UIManager.top_elements:
             _UIManager.top_elements.remove(self)
-        if self in _UIManager.tree_elements:
-            _UIManager.tree_elements.remove(self)
+        if self in _UIManager.root_elements:
+            _UIManager.root_elements.remove(self)
+        if self in _UIManager.all_elements:
+            _UIManager.all_elements.remove(self)
         for child in self.children:
             child._kill()
         del self
@@ -427,8 +473,11 @@ class _Element:
     def point_hovering(self, point: _Coordinate) -> bool:
         return self._rect.collidepoint(point)
 
-    def is_tree(self) -> bool:
-        return self in _UIManager.tree_elements
+    def is_root(self) -> bool:
+        return self in _UIManager.root_elements
+
+    def kill(self):
+        self._kill()
 
     @property
     def parent(self) -> "_Element":
@@ -436,7 +485,19 @@ class _Element:
 
     @property
     def children(self) -> list["_Element"]:
-        return self._children
+        return self._children.copy()
+
+    @property
+    def absolute_rect(self) -> pygame.Rect:
+        return self._rect.copy()
+
+    @property
+    def relative_rect(self) -> pygame.Rect:
+        return self._rel_rect.copy()
+
+    @property
+    def root(self) -> "_Element":
+        return self._root_element
 
 
 def _anchor_inner(anchor, parent, inner, padding):

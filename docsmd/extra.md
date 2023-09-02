@@ -77,9 +77,13 @@ If your font support this arrows, put them using the drop menu `down_arrow` and 
 
 # Functions
 
+## get_all_elements() -> list[Element]
+
+Return a copy of the list containing all elements existing. Useful to apply settings like a theme during runtime
+
 ## settings_help(element: str | Element | type[Element], setting: str | None) -> dict | str
 
-As said in [Element Settings](settings.md), use this function to know about the settings available for every element.
+As said in [Element Settings](settings.md), use this function to know about the settings available for every element
 
 ## pretty_format(json_like_object) -> str
 

@@ -14,6 +14,9 @@ colors = ["green", "red", "blue", "yellow", "orange", "pink", "purple"]
 surfaces = [pygame.Surface((100, 100)) for col in colors]
 [surface.fill(colors[i]) for i, surface in enumerate(surfaces)]
 
+pygame_logo = pygame.transform.scale_by(
+    pygame.image.load("demos/pygame.png").convert_alpha(), 0.5)
+
 wui.UserSettings.add("vcont",
                      center_elements=True,
                      min_max_size=(1000, 700),
@@ -25,12 +28,13 @@ vdir = 1
 
 wui.Themes.set_default("dark")
 
-with wui.VCont(**wui.UserSettings.get("vcont")):
+with wui.VCont(**wui.UserSettings.get("vcont")) as cont:
     label = wui.Label(text="Label", anchor="center",
                       min_width=100, min_height=50)
     wui.Line(height=3, width_percent=100)
     checkbox = wui.Checkbox(min_max_size=(30, 30))
-    button = wui.Button(text="RANDOM BUTTON", width=100, auto_resize_h=False)
+    button = wui.Button(text="RANDOM BUTTON", width=100, auto_resize_h=False, has_background=False,
+                        background_image=pygame_logo, text_color="black", background_padding=5, has_outline=False, adapt_to_bg=True)
     wui.Slideshow(surfaces=surfaces)
     wui.GIF(frames=surfaces, frame_cooldown=500)
     pb = wui.ProgressBar(width_percent=50, height=40, padding=4, value=0)

@@ -3,9 +3,8 @@ import typing
 
 _ColorValue = pygame.Color | str | tuple[int, int,
                                          int] | tuple[int, int, int, int] | list[int]
-_Number = int | float
-_Coordinate = pygame.Vector2 | tuple[_Number,
-                                     _Number] | list[_Number] | typing.Iterable[_Number]
+_Coordinate = pygame.Vector2 | tuple[float,
+                                     float] | list[float] | typing.Iterable[float]
 
 _ZERO_VEC = pygame.Vector2()
 _SCROLLBAR_SIZE = 15
@@ -37,6 +36,14 @@ _SETTINGS_HELP = {
         "outline_color": "Color of the outline if has_outline flag is true",
         "text_color": "Color of the text, if any",
         "inner_color": "Color for shapes inside the element, if any",
+        "background_image": "If not None, it's the surface drawn after filling the background and before drawing the outline",
+        "background_anchor": "The anchor of the background image relative to the element",
+        "background_padding": "The margin between the borders and the background image",
+        "resize_background": "Whether the background image should be resized when the element size changes",
+        "adapt_to_bg": "Whether the element size should be the same as the background image (+ padding). Does not interfer with the auto resize settings",
+        "bg_effect_alpha": "The alpha used when filling the image with the interaction color (hover / press)",
+        "bg_hover_flag": "The pygame blend flag constant passed as a special flag when filling the image with the hover color",
+        "bg_press_flag": "The pygame blend flag constant passed as a special flag when filling the image with the click color",
         "font_size": "The size of the font for the text",
         "font_name": "The file name or the font. None is allowed",
         "sysfont_name": "If it's not None, it overrides font_name and calls pygame.font.SysFont instead",

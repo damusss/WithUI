@@ -10,7 +10,7 @@ class Window(VCont):
     def _on_init(self):
         self._super = super()
         self._super._on_init()
-        if self not in _wuib._UIManager.tree_elements:
+        if self not in _wuib._UIManager.root_elements:
             raise _wuib._WithUIException(
                 f"Window elements should be declared at the top and not have any parent")
         self._finished_instantiating = False
@@ -71,16 +71,17 @@ class Window(VCont):
         self._close_button.settings.width = self._close_button.settings.height
         self._title_button.settings.width = self._title_button.settings.min_width = self._title_button.settings.max_width = max(
             1, self.settings.width-self._close_button.settings.width-self._title_cont.settings.margin*2)
-        if self._can_drag and self._title_button.status.pressing:
+        if self._can_drag and self._title_button.status.pressing and self.settings.active:
             self._topleft += pygame.Vector2(_wuib._UIManager.mouse_rel)
-        if self.status._absolute_hover and _wuib._UIManager.mouse_buttons[0]:
+        if self.status._absolute_hover and _wuib._UIManager.mouse_buttons[0] and self.settings.active:
             atleastone = False
-            for element in _wuib._UIManager.tree_elements:
-                if element._tree_index > self._tree_index:
-                    element._tree_index -= 1
+            for element in _wuib._UIManager.root_elements:
+                if element._root_index > self._root_index:
+                    element._root_index -= 1
                     atleastone = True
             if atleastone:
-                self._tree_index += 1
+                self._root_index += 1
+                
         self._super._update()
 
     def _on_close_click(self, btn):

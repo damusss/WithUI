@@ -9,10 +9,10 @@ class ProgressBar(_wuib._Element):
     def _on_init(self):
         self.set(show_press=False, show_hover=False,
                  padding=0, has_dark_bg=True)
-        self.min_value: _wuib._Number = 0
-        self.max_value: _wuib._Number = 100
-        self.value: _wuib._Number = 50
-        self.value_percent: _wuib._Number = None
+        self.min_value: float = 0
+        self.max_value: float = 100
+        self.value: float = 50
+        self.value_percent: float = None
         self.direction: str = "left-right"
         self._inner_rect = pygame.Rect(0, 0, 0, 0)
 
@@ -122,8 +122,9 @@ class Slider(_wuib._Element):
         else:
             self.handle.settings.free_position = pygame.Vector2(
                 self._topleft.x+self.settings.width//2-self._handle_size//2, self._topleft.y+self._handle_pos-self._handle_size//4)
-
-        self._post_update()
+        
+        if not self.settings.active: return
+        
         previous = self._handle_pos
         if self.handle.status.pressing:
             self._handle_pos += _wuib._UIManager.mouse_rel[0 if self._direction ==
@@ -143,7 +144,9 @@ class Slider(_wuib._Element):
 
         if previous != self._handle_pos and self._on_move:
             self._on_move(self, self._handle_pos-previous)
+            
+        self._post_update()
 
     @property
-    def value_percent(self) -> _wuib._Number:
+    def value_percent(self) -> float:
         return self.value*100

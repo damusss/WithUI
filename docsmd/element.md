@@ -57,9 +57,13 @@ Same as `set(active=False)` or `element.settings.active = False`
 
 Return whether a point is inside the element's rect using the absolute position
 
-## is_tree() -> bool
+## is_root() -> bool
 
 Return whether the element is a tree element
+
+## kill()
+
+Deletes the element from every place its referenced
 
 # Properties
 
@@ -69,6 +73,18 @@ The element this element is children of
 
 ## children: list[Element]
 
-The list containing the element's children
+A copy of the list containing the element's children
+
+## root: Element
+
+The root element this element is under of. If the element is root, the propery returns the element
+
+## absolute_rect: pygame.Rect
+
+A copy of the rect relative to the window position used for interaction calculations
+
+## relative_rect: pygame.Rect
+
+A copy of the rect which topleft is relative to its parent
 
 ## [-> next (element settings)](settings.md)

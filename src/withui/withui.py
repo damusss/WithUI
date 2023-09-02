@@ -190,6 +190,10 @@ def refresh_default_font():
     _wuib._Settings.font = func(font_name, _wuib._Settings.font_size)
 
 
+def get_all_elements() -> list[_wuib._Element]:
+    return _wuib._UIManager.all_elements.copy()
+
+
 def register_event(event: pygame.event.Event):
     if _wuib._UIManager.frame_ended:
         _wuib._UIManager.frame_ended = False
@@ -202,14 +206,14 @@ def update_ui():
         _wuib._UIManager.frame_ended = False
         _wuib._UIManager.frame_events = []
     _wuib._UIManager.update()
-    for element in _wuib._UIManager.tree_elements:
+    for element in _wuib._UIManager.root_elements:
         element._update()
     _wuib._UIManager.frame_ended = True
 
 
 def draw_ui(surface: pygame.Surface):
-    for element in sorted(_wuib._UIManager.tree_elements, key=lambda tel: tel._tree_index):
+    for element in sorted(_wuib._UIManager.root_elements, key=lambda tel: tel._root_index):
         element._draw(surface)
         for el in _wuib._UIManager.top_elements:
-            if el._tree_element._tree_index == element._tree_index:
+            if el._root_element._root_index == element._root_index:
                 el._draw(surface)

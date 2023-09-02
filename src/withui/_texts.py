@@ -125,10 +125,12 @@ class Entryline(_wuib._Element):
 
     def _update(self):
         if self._inner_surf:
-            self.settings.height = self._inner_surf.get_height()+self.settings.padding*2
+            self._set_h(self._inner_surf.get_height()+self.settings.padding*2)
+            
         self._pre_update()
+        if not self.settings.active: return
+        
         previous_text = self._text
-
         if self._focused:
             for event in _wuib._UIManager.frame_events:
                 if event.type == pygame.KEYDOWN:
@@ -215,6 +217,7 @@ class Entryline(_wuib._Element):
         if self._text != previous_text:
             self._inner_surf = self.settings.font.render(
                 self._text, self.settings.font_antialas, self.settings.text_color)
+            
         self._post_update()
 
         if _wuib._UIManager.ticks - self._last_blink >= self._blink_time:
