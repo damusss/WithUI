@@ -23,9 +23,14 @@ class _UIManager:
     frame_ended = False
     ticks = 0
     all_elements: list["_Element"] = []
+    navigating: bool = False
+    tabbed_element: "_Element" = None
+    navigation_enabled: bool = True
+    space_pressed: bool = False
 
     @classmethod
     def update(cls):
+        cls.space_pressed = False
         if cls.mouse_buttons:
             cls.was_clicking = cls.mouse_buttons[0]
         cls.mouse_buttons = pygame.mouse.get_pressed()
@@ -33,6 +38,85 @@ class _UIManager:
         cls.mouse_rel = pygame.mouse.get_rel()
         cls.keys = pygame.key.get_pressed()
         cls.ticks = pygame.time.get_ticks()
+
+        for event in cls.frame_events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    cls.navigating = False
+                    cls.tabbed_element = None
+                elif event.key == pygame.K_UP:
+                    if cls.navigating and cls.tabbed_element is not None and cls.tabbed_element.parent is not None:
+                        cls.tabbed_element = cls.tabbed_element.parent
+                elif event.key == pygame.K_RETURN:
+                    if cls.navigating and cls.tabbed_element is not None and len(cls.tabbed_element._children) > 0:
+                        cls.tabbed_element = cls.tabbed_element._children[0]
+                        if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
+                            cls.tab(1)
+                elif event.key == pygame.K_TAB:
+                    if cls.keys[pygame.K_LSHIFT]:
+                        if cls.navigating and cls.tabbed_element is not None:
+                            cls.tab(-1)
+                    else:
+                        if not cls.navigating and len(cls.root_elements) > 0 and cls.navigation_enabled:
+                            cls.navigating = True
+                            cls.tabbed_element = cls.root_elements[0]
+                            if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
+                                cls.tab(1)
+                        else:
+                            if cls.navigating and cls.tabbed_element is not None:
+                                cls.tab(1)
+
+        if cls.keys[pygame.K_SPACE]:
+            if cls.navigating and cls.tabbed_element is not None:
+                cls.space_pressed = True
+
+    @classmethod
+    def tab(cls, increment):
+        if cls.tabbed_element._parent is not None:
+            try:
+                cur_index = cls.tabbed_element._parent._children.index(
+                    cls.tabbed_element)
+            except ValueError:
+                cls.navigating = False
+                cls.tabbed_element = None
+            else:
+                cur_index += increment
+                if (cur_index < len(cls.tabbed_element._parent._children) and increment > 0) or (cur_index >= 0 and increment < 0):
+                    cls.tabbed_element = cls.tabbed_element._parent._children[cur_index]
+                    if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
+                        cls.tab(increment)
+                else:
+                    if len(cls.tabbed_element._parent._children) > 0:
+                        if increment > 0:
+                            cls.tabbed_element = cls.tabbed_element._parent._children[0]
+                            if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
+                                cls.tab(increment)
+                        else:
+                            cls.tabbed_element = cls.tabbed_element._parent._children[-1]
+                            if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
+                                cls.tab(increment)
+        else:
+            try:
+                cur_index = cls.root_elements.index(cls.tabbed_element)
+            except ValueError:
+                cls.navigating = False
+                cls.tabbed_element = None
+            else:
+                cur_index += increment
+                if (cur_index < len(cls.root_elements) and increment > 0) or (cur_index >= 0 and increment < 0):
+                    cls.tabbed_element = cls.root_elements[cur_index]
+                    if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
+                        cls.tab(increment)
+                else:
+                    if len(cls.root_elements) > 0:
+                        if increment > 0:
+                            cls.tabbed_element = cls.root_elements[0]
+                            if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
+                                cls.tab(increment)
+                        else:
+                            cls.tabbed_element = cls.root_elements[-1]
+                            if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
+                                cls.tab(increment)
 
 
 class _Settings:
@@ -107,6 +191,10 @@ class _Settings:
     can_scroll_h: bool = False
     can_scroll_v: bool = False
     scroll_offset: pygame.Vector2 = None
+    # navigation
+    navigation_color: _ColorValue = "red"
+    navigation_size: float = 2
+    can_navigate: bool = True
 
     def __init__(self):
         for attr, value in vars(_Settings).items():
@@ -182,8 +270,9 @@ class _Status:
             element.settings.on_hover(element)
 
         was_pressing = self.pressing
-        self.pressing = (
-            self.hovering or self._started_pressing) and _UIManager.mouse_buttons[0] and element.settings.can_press
+        self.pressing = (((
+            self.hovering or self._started_pressing) and _UIManager.mouse_buttons[0]) or
+            element is _UIManager.tabbed_element and _UIManager.space_pressed) and element.settings.can_press
 
         if not was_hovering and _UIManager.was_clicking and not self._started_pressing:
             self.pressing = False
@@ -427,6 +516,9 @@ class _Element:
                              ((0, 0), self._rect.size),
                              self.settings.outline_width,
                              self.settings.border_radius)
+        if self is _UIManager.tabbed_element:
+            pygame.draw.rect(self._surface, self.settings.navigation_color,
+                             ((0, 0), self._rect.size), max(self.settings.navigation_size, 1))
         surface.blit(self._surface, (self._topleft +
                                      self.settings.offset -
                                      ((self._parent.settings.scroll_offset if not self.settings.ignore_scroll else _ZERO_VEC)

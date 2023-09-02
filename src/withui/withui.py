@@ -37,6 +37,7 @@ class Themes:
         "outline_color": (67, 0, 137),
         "inner_color": "purple",
         "text_color": "white",
+        "navigation_color": "white",
     }
     GREEN = {
         "background_color": (0, 78, 18),
@@ -46,6 +47,7 @@ class Themes:
         "outline_color": (0, 95, 20),
         "inner_color": (0, 255, 155),
         "text_color": "white",
+        "navigation_color": "yellow",
     }
     BLUE = {
         "dark_bg_color": (0, 10, 60),
@@ -55,6 +57,7 @@ class Themes:
         "outline_color": (0, 50, 145),
         "inner_color": (0, 100, 255),
         "text_color": "white",
+        "navigation_color": "green",
     }
     RED = {
         "dark_bg_color": (55, 0, 0),
@@ -64,6 +67,7 @@ class Themes:
         "outline_color": (135, 0, 0),
         "inner_color": (255, 0, 0),
         "text_color": "white",
+        "navigation_color": "yellow",
     }
     DARK = {
         "dark_bg_color": (17, 17, 17),
@@ -73,6 +77,7 @@ class Themes:
         "outline_color": (50, 50, 50),
         "inner_color": (0, 100, 200),
         "text_color": "white",
+        "navigation_color": "red",
     }
 
     LIGHT = {
@@ -83,6 +88,7 @@ class Themes:
         "outline_color": (230, 230, 230),
         "inner_color": (0, 150, 255),
         "text_color": "black",
+        "navigation_color": "yellow",
     }
 
     @classmethod
@@ -98,7 +104,7 @@ class Themes:
         else:
             theme = builtin_color_theme_or_name
             for col in ["dark_bg_col", "background_color", "hover_color",
-                        "click_color", "outline_color", "inner_color", "text_color", ]:
+                        "click_color", "outline_color", "inner_color", "text_color", "navigation_color"]:
                 if col not in theme:
                     raise _wuib._WithUIException(
                         f"The theme dict provided must contain the '{col}' key")
@@ -109,6 +115,7 @@ class Themes:
         _wuib._Settings.outline_color = theme["outline_color"]
         _wuib._Settings.inner_color = theme["inner_color"]
         _wuib._Settings.text_color = theme["text_color"]
+        _wuib._Settings.navigation_color = theme["navigation_color"]
 
 
 class Clipboard:
@@ -192,6 +199,21 @@ def refresh_default_font():
 
 def get_all_elements() -> list[_wuib._Element]:
     return _wuib._UIManager.all_elements.copy()
+
+
+def apply_settings_to_all_elements(**kwargs):
+    for element in _wuib._UIManager.all_elements:
+        element.set(**kwargs)
+
+
+def disable_keyboard_navigation():
+    _wuib._UIManager.navigating = False
+    _wuib._UIManager.tabbed_element = None
+    _wuib._UIManager.navigation_enabled = False
+
+
+def enable_keyboard_navigation():
+    _wuib._UIManager.navigation_enabled = True
 
 
 def register_event(event: pygame.event.Event):

@@ -24,6 +24,7 @@ The name was created after the structure style of the library. To create a paren
 - Very customizable element settings
 - Settings utilities
 - Builtin themes
+- Keyboard navigation
 
 # Installation
 The library will be released on PyPI when it exits the beta stage. For now you can downlod the source code and pip install it manually.

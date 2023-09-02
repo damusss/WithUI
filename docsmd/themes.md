@@ -30,4 +30,4 @@ withui.Themes.set_default(withui.Themes.GREEN)
 withui.Button(text="A Button", **withui.Themes.BLUE)
 ```
 
-## [-> next (extra)](extra.md)
+## [-> next (keyboard navigation)](navigation.md)

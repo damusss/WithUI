@@ -81,9 +81,17 @@ If your font support this arrows, put them using the drop menu `down_arrow` and 
 
 Return a copy of the list containing all elements existing. Useful to apply settings like a theme during runtime
 
+## apply_settings_to_all_elements(\*\*kwargs)
+
+Apply the given settings as keyword arguments to all elements existing. Useful to apply settings like a theme during runtime
+
 ## settings_help(element: str | Element | type[Element], setting: str | None) -> dict | str
 
 As said in [Element Settings](settings.md), use this function to know about the settings available for every element
+
+## enable_keyboard_navigation() / disable_keyboard_navigation()
+
+Toggle whether ui elements can be navigated using the keyboard
 
 ## pretty_format(json_like_object) -> str
 

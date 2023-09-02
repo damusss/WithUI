@@ -13,4 +13,6 @@
 
 # [Themes](themes.md)
 
+# [Keyboard Navigation](navigation.md)
+
 # [Extra constants and functions](extra.md)
