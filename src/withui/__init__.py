@@ -33,4 +33,8 @@ from .withui import (
     update_ui,
     draw_ui,
     refresh_default_font,
+    enable_keyboard_navigation,
+    disable_keyboard_navigation,
+    get_all_elements,
+    apply_settings_to_all_elements
 )
