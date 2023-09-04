@@ -90,7 +90,7 @@ Reset the text and start animating
 
 Manually terminate the animation
 
-### text property
+### text: str property
 
 Get and set the animation text
 
@@ -123,11 +123,11 @@ Constructor parameters:
 - `allow_folders` (optional): Whether the user can select a folder and press ok
 - `filter_extensions` (optional): If a value (list of strings) is given, only files with those extensions can be selected
 
-### open_path property (get, set)
+### open_path: pathlib.Path property (get, set)
 
 The folder currently opened in the file dialog
 
-### selected_path property
+### selected_path: pathlib.Path property
 
 The absolute path of the user selection if any, otherwise the current opened path
 
