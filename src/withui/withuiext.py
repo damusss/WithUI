@@ -148,7 +148,7 @@ class TypingAnimation:
 
 
 class HoverGrowAnimation:
-    def __init__(self, element: _wuib._Element, background_image: pygame.Surface, grow_factor: float = 1.1, speed: float = 0.8):
+    def __init__(self, element: _wuib._Element, background_image: pygame.Surface, grow_factor: float = 1.1, speed: float = 1):
         self._element = element
         self._bg_image = background_image
         self._full_size = pygame.transform.scale_by(
@@ -159,7 +159,7 @@ class HoverGrowAnimation:
         self._factor = 1
         self._grow_dir = 0
         self._element.set(on_mouse_enter=self._element_mouse_enter, on_mouse_exit=self._element_mouse_exit, auto_resize_h=False, auto_resize_v=False,
-                          min_max_size=pygame.Vector2(self._full_size)+pygame.Vector2(element.settings.background_padding))
+                          min_max_size=pygame.Vector2(self._full_size)+pygame.Vector2(element.settings.background_padding)*2)
         AnimationsManager.animations.append(self)
 
     def _element_mouse_enter(self, el):

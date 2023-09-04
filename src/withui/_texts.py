@@ -75,6 +75,7 @@ class Entryline(_wuib._Element):
     def _on_set(self, **kwargs):
         if "text" in kwargs:
             self._text = str(kwargs["text"])
+            if self._text: self._cursor = len(self._text)
             self._inner_surf = self.settings.font.render(
                 self._text, self.settings.font_antialas, self.settings.text_color)
         if "cursor_width" in kwargs:
@@ -412,5 +413,6 @@ class Entryline(_wuib._Element):
     @text.setter
     def text(self, value):
         self._text = str(value)
+        if self._text: self._cursor = len(self._text)
         self._inner_surf = self.settings.font.render(
             self._text, self.settings.font_antialas, self.settings.text_color)

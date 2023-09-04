@@ -439,6 +439,8 @@ class _Element:
                 _anchor_inner(self.settings.background_anchor, self._rel_rect,
                               self._bg_rect, self.settings.background_padding)
                 self._bg_rect.topleft -= self._topleft+self.settings.offset
+        if "on_toggle" in kwargs:
+            self.settings.on_select = self.settings.on_deselect = kwargs["on_toggle"]
 
         self._on_set(**kwargs)
         return self
