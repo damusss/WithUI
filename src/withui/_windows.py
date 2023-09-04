@@ -81,7 +81,7 @@ class Window(VCont):
                     atleastone = True
             if atleastone:
                 self._root_index += 1
-                
+
         self._super._update()
 
     def _on_close_click(self, btn):

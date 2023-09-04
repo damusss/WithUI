@@ -15,8 +15,8 @@ class _UIManager:
     root_elements: list["_Element"] = []
     top_elements: list["_Element"] = []
     mouse_buttons = None
-    mouse_pos = None
-    mouse_rel = None
+    mouse_pos = (0, 0)
+    mouse_rel = (0, 0)
     keys = None
     was_clicking = False
     frame_events: list[pygame.event.Event] = []
@@ -207,7 +207,8 @@ class _Settings:
             if not hasattr(self, attr):
                 continue
             setattr(self, attr, value)
-        self.font = pygame.font.Font = pygame.font.SysFont(self.sysfont_name, self.font_size)
+        self.font = pygame.font.Font = pygame.font.SysFont(
+            self.sysfont_name, self.font_size)
         self.font.align = pygame.FONT_CENTER
 
 
@@ -386,25 +387,25 @@ class _Element:
                 setattr(self.settings, name, val)
 
         if "min_max_size" in kwargs:
-            self.settings.width = self.settings.min_width = self.settings.max_width = kwargs[
-                "min_max_size"][0]
-            self.settings.height = self.settings.min_height = self.settings.max_height = kwargs[
-                "min_max_size"][1]
+            self.settings.width = self.settings.min_width = self.settings.max_width = int(kwargs[
+                "min_max_size"][0])
+            self.settings.height = self.settings.min_height = self.settings.max_height = int(kwargs[
+                "min_max_size"][1])
         if "min_size" in kwargs:
-            self.settings.min_width = kwargs["min_size"][0]
-            self.settings.min_height = kwargs["min_size"][1]
+            self.settings.min_width = int(kwargs["min_size"][0])
+            self.settings.min_height = int(kwargs["min_size"][1])
         if "max_size" in kwargs:
-            self.settings.max_width = kwargs["max_size"][0]
-            self.settings.max_height = kwargs["max_size"][1]
+            self.settings.max_width = int(kwargs["max_size"][0])
+            self.settings.max_height = int(kwargs["max_size"][1])
         if "size" in kwargs:
-            self.settings.width = kwargs["size"][0]
-            self.settings.height = kwargs["size"][1]
+            self.settings.width = int(kwargs["size"][0])
+            self.settings.height = int(kwargs["size"][1])
         if "min_max_width" in kwargs:
-            self.settings.width = self.settings.max_width = self.settings.min_width = kwargs[
-                "min_max_width"]
+            self.settings.width = self.settings.max_width = self.settings.min_width = int(kwargs[
+                "min_max_width"])
         if "min_max_height" in kwargs:
-            self.settings.height = self.settings.max_height = self.settings.min_height = kwargs[
-                "min_max_height"]
+            self.settings.height = self.settings.max_height = self.settings.min_height = int(kwargs[
+                "min_max_height"])
         if "text_align" in kwargs:
             if isinstance(kwargs["text_align"], int):
                 self.settings.font.align = kwargs["text_align"]
@@ -435,6 +436,9 @@ class _Element:
             self._bg_image = kwargs["background_image"]
             if self._bg_image:
                 self._bg_rect = self._bg_image.get_rect()
+                _anchor_inner(self.settings.background_anchor, self._rel_rect,
+                              self._bg_rect, self.settings.background_padding)
+                self._bg_rect.topleft -= self._topleft+self.settings.offset
 
         self._on_set(**kwargs)
         return self
@@ -447,12 +451,13 @@ class _Element:
 
     def __enter__(self):
         self._children_queue: list["_Element"] = []
+        self._previous_last = _UIManager.last_element if self._parent else None
         _UIManager.last_element = self
         self._on_enter()
         return self
 
     def __exit__(self, exc_type=None, exc_val=None, exc_tb=None):
-        _UIManager.last_element = self._parent
+        _UIManager.last_element = self._previous_last
         for child in self._children_queue:
             self._add_child(child)
         self._on_exit()
@@ -464,12 +469,12 @@ class _Element:
         self._rect.topleft = self._real_topleft
         self._rel_rect.topleft = self._topleft+self.settings.offset
         if self.settings.width_percent and self.parent:
-            self.settings.width = (
+            self.settings.width = self.settings.min_width = self.settings.max_width = (
                 (self.parent.settings.width-(self.settings.margin*2+(self.settings.margin*(len(self._parent._children)-2) if
                                                                      self._parent._h_cont else 0))-self.parent._scroll_margin_h) *
                 self.settings.width_percent)/100
         if self.settings.height_percent and self.parent:
-            self.settings.height = (
+            self.settings.height = self.settings.min_height = self.settings.max_height = (
                 (self.parent.settings.height-(self.settings.margin*2+(self.settings.margin*(len(self._parent._children)-2) if
                                                                       self._parent._v_cont else 0))-self.parent._scroll_margin_v) *
                 self.settings.height_percent)/100
@@ -477,11 +482,11 @@ class _Element:
             if self._bg_image.get_width() != self._bg_rect.w or self._bg_image.get_height() != self._bg_rect.h:
                 self._bg_rect = self._bg_image.get_rect()
         if self.settings.resize_background and self.settings.background_image:
-            if self._rect.w != (self._bg_rect.w + self.settings.background_padding*2) or self._rect.h != (self._bg_rect.h+self.settings.background_padding*2):
+            if self._rect.w != (self._bg_rect.w - self.settings.background_padding*2) or self._rect.h != (self._bg_rect.h-self.settings.background_padding*2):
                 self._bg_image = pygame.transform.scale(self.settings.background_image, (int(
-                    self._rect.w+self.settings.background_padding*2), int(self._rect.h+self.settings.background_padding*2)))
-                self._bg_rect.size = (self._rect.w+self.settings.background_padding*2,
-                                      self._rect.h+self.settings.background_padding*2)
+                    self._rect.w-self.settings.background_padding*2), int(self._rect.h-self.settings.background_padding*2)))
+                self._bg_rect.size = (self._rect.w-self.settings.background_padding*2,
+                                      self._rect.h-self.settings.background_padding*2)
         elif self.settings.adapt_to_bg and self._bg_image:
             if self.settings.width != (self._bg_rect.w + self.settings.background_padding*2) or self.settings.height != (self._bg_rect.h + self.settings.background_padding*2):
                 self._set_w(
@@ -557,6 +562,8 @@ class _Element:
             _UIManager.all_elements.remove(self)
         for child in self.children:
             child._kill()
+        if self is _UIManager.last_element:
+            _UIManager.last_element = self._parent if self._parent else None
         del self
 
     def _remove_child(self, child):

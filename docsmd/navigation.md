@@ -11,4 +11,4 @@ Start navigating pressing TAB.
 - UP -> If the element has a parent, navigate to the parent
 - SPACE -> Interact with the navigated element if possible
 
-## [-> next (extra)](extra.md)
+## [-> next (other)](extra.md)

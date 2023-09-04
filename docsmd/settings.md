@@ -5,6 +5,7 @@
 The settings for each element are stored in an object that is unique for every element.
 
 Every element that is not a base element has often some custom settings. Always use the `set()` method.
+You can also pass settings to the constructor of the element and you'll have the same result.
 
 To know about each setting use the following method:
 

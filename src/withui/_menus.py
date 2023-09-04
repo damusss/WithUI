@@ -15,7 +15,7 @@ class SelectionList(VCont):
 
     def _on_set(self, **kwargs):
         if "options" in kwargs:
-            previously_selected = [btn.text for btn in self._option_buttons]
+            previously_selected = [btn.text for btn in self._option_buttons if btn.status.selected]
             for btn in self._option_buttons:
                 btn._kill()
             self.__enter__()

@@ -1,5 +1,5 @@
 from .withui import (
-    ext, # TooltipManager, HoverGrowAnimation, TypingAnimation
+    ext, # TooltipManager, HoverGrowAnimation, TypingAnimation, AnimationsManager, FileDialog
     Button,
     Label,
     Entryline,

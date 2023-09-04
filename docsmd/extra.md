@@ -1,6 +1,6 @@
 [<- back to docs](docs.md)
 
-# Extra
+# Other
 
 In addition to the rest, there are still a few things left!
 
@@ -77,6 +77,14 @@ If your font support this arrows, put them using the drop menu `down_arrow` and 
 
 # Functions
 
+## set_hover_sound(sound: pygame.mixer.Sound)
+
+Set the sound that will play when hovering an element
+
+## set_click_sound(sound: pygame.mixer.Sound)
+
+Set the sound that will play when clicking an element
+
 ## get_all_elements() -> list[Element]
 
 Return a copy of the list containing all elements existing. Useful to apply settings like a theme during runtime
@@ -106,3 +114,5 @@ It's suggested to be used while printing settings from `settings_help()`
 ## refresh_default_font()
 
 If you change font settings in `DefaultSettings`, don't forget to call this function!
+
+## [-> next (extension module)](ext.md)

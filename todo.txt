@@ -4,9 +4,8 @@ Elements:
 
 Features:
 
-- ext module:
-    - tooltip
-    - text typing animation
-    - bg grow on hover
+None
 
-AFTER, UPDATE DOCS!
+EXT Module:
+
+None

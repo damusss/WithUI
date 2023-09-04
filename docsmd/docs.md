@@ -15,4 +15,6 @@
 
 # [Keyboard Navigation](navigation.md)
 
-# [Extra constants and functions](extra.md)
+# [Other constants and functions](extra.md)
+
+# [Extension Module](ext.md)
