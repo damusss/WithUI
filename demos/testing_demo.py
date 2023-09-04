@@ -61,7 +61,7 @@ with wui.Window(min_max_size=(300, 300)):
     for i in range(20):
         wui.Button(text="win button")
 
-dialog = wui.ext.FileDialog((200, 200), 400, 300)
+dialog = wui.ext.FileDialog((200, 200), 400, 300, filter_extensions=["txt"])
 
 while True:
     for e in pygame.event.get():

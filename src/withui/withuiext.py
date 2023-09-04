@@ -237,7 +237,7 @@ class FileDialog:
     def _validate_path(self, path, full=False):
         if not self._allow_folders and os.path.isdir(str(path)) and full:
             return False
-        if self._filter:
+        if self._filter is not None:
             if os.path.isfile(str(path)) and not path.name.split(".")[1] in self._filter:
                 return False
         return True
