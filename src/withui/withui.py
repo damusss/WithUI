@@ -151,8 +151,8 @@ NORESIZE: dict[str, bool] = {
     "auto_resize_v": False
 }
 
-MODERN_DOWN_ARROW = "▼"
-MODERN_UP_ARROW = "▲"
+MODERN_DOWN_ARROW = " ▼ "
+MODERN_UP_ARROW = " ▲ "
 
 
 def settings_help(element: str | type[_wuib._Element] | _wuib._Element = "Element", setting: str = None) -> str | dict[str, str]:

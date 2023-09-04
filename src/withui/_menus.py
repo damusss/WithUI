@@ -87,8 +87,8 @@ class DropMenu(HCont):
     def _on_init(self):
         self._super = super()
         self._super._on_init()
-        self._down_arrow_string = "v"  # ▼
-        self._up_arrow_string = "^"  # ▲
+        self._down_arrow_string = " v "  # ▼
+        self._up_arrow_string = " ^ "  # ▲
         self.__enter__()
         self._selected_button = Button(
             text="", on_click=self._selected_click, margin=1)
