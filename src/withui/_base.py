@@ -47,13 +47,18 @@ class _UIManager:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     cls.navigating = False
+                    if cls.tabbed_element: cls.tabbed_element._set_dirty()
                     cls.tabbed_element = None
                 elif event.key == pygame.K_UP:
                     if cls.navigating and cls.tabbed_element is not None and cls.tabbed_element.parent is not None:
+                        if cls.tabbed_element: cls.tabbed_element._set_dirty()
                         cls.tabbed_element = cls.tabbed_element.parent
+                        if cls.tabbed_element: cls.tabbed_element._set_dirty()
                 elif event.key == pygame.K_RETURN:
                     if cls.navigating and cls.tabbed_element is not None and len(cls.tabbed_element._children) > 0:
+                        if cls.tabbed_element: cls.tabbed_element._set_dirty()
                         cls.tabbed_element = cls.tabbed_element._children[0]
+                        if cls.tabbed_element: cls.tabbed_element._set_dirty()
                         if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                             cls.tab(1)
                 elif event.key == pygame.K_TAB:
@@ -63,7 +68,9 @@ class _UIManager:
                     else:
                         if not cls.navigating and len(cls.root_elements) > 0 and cls.navigation_enabled:
                             cls.navigating = True
+                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
                             cls.tabbed_element = cls.root_elements[0]
+                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
                             if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                                 cls.tab(1)
                         else:
@@ -82,21 +89,28 @@ class _UIManager:
                     cls.tabbed_element)
             except ValueError:
                 cls.navigating = False
+                if cls.tabbed_element: cls.tabbed_element._set_dirty()
                 cls.tabbed_element = None
             else:
                 cur_index += increment
                 if (cur_index < len(cls.tabbed_element._parent._children) and increment > 0) or (cur_index >= 0 and increment < 0):
+                    if cls.tabbed_element: cls.tabbed_element._set_dirty()
                     cls.tabbed_element = cls.tabbed_element._parent._children[cur_index]
+                    if cls.tabbed_element: cls.tabbed_element._set_dirty()
                     if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                         cls.tab(increment)
                 else:
                     if len(cls.tabbed_element._parent._children) > 0:
                         if increment > 0:
+                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
                             cls.tabbed_element = cls.tabbed_element._parent._children[0]
+                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
                             if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                                 cls.tab(increment)
                         else:
+                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
                             cls.tabbed_element = cls.tabbed_element._parent._children[-1]
+                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
                             if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                                 cls.tab(increment)
         else:
@@ -104,21 +118,28 @@ class _UIManager:
                 cur_index = cls.root_elements.index(cls.tabbed_element)
             except ValueError:
                 cls.navigating = False
+                if cls.tabbed_element: cls.tabbed_element._set_dirty()
                 cls.tabbed_element = None
             else:
                 cur_index += increment
                 if (cur_index < len(cls.root_elements) and increment > 0) or (cur_index >= 0 and increment < 0):
+                    if cls.tabbed_element: cls.tabbed_element._set_dirty()
                     cls.tabbed_element = cls.root_elements[cur_index]
+                    if cls.tabbed_element: cls.tabbed_element._set_dirty()
                     if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                         cls.tab(increment)
                 else:
                     if len(cls.root_elements) > 0:
                         if increment > 0:
+                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
                             cls.tabbed_element = cls.root_elements[0]
+                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
                             if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                                 cls.tab(increment)
                         else:
+                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
                             cls.tabbed_element = cls.root_elements[-1]
+                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
                             if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                                 cls.tab(increment)
 
@@ -220,7 +241,7 @@ _Settings.font.align = pygame.FONT_CENTER
 
 
 class _Status:
-    def __init__(self):
+    def __init__(self, element):
         self.hovering: bool = False
         self.pressing: bool = False
         self.selected: bool = False
@@ -233,6 +254,7 @@ class _Status:
         self._started_pressing = False
         self._started_right = False
         self._absolute_hover = False
+        self._element = element
 
     def check_click(self) -> bool:
         return self._clicked
@@ -247,12 +269,15 @@ class _Status:
         return self._right_released
 
     def select(self):
+        self._element._set_dirty()
         self.selected = True
 
     def deselect(self):
+        self._element._set_dirty()
         self.selected = False
 
     def toggle_selection(self):
+        self._element._set_dirty()
         self.selected = not self.selected
 
     def _any_child_hover(self, any_other_child, element: "_Element"):
@@ -320,12 +345,14 @@ class _Status:
             self._hovering = False
 
         if self.hovering and not was_hovering:
+            element._set_dirty()
             if element.settings.on_mouse_enter:
                 element.settings.on_mouse_enter(element)
             if _UIManager.hover_sound is not None:
                 _UIManager.hover_sound.play()
 
         if not self.hovering and was_hovering:
+            element._set_dirty()
             if element.settings.on_mouse_exit:
                 element.settings.on_mouse_exit(element)
 
@@ -333,12 +360,14 @@ class _Status:
             element.settings.on_pressed(element)
 
         if was_pressing and not self.pressing:
+            element._set_dirty()
             self._started_pressing = False
             self._released = True
             if element.settings.on_release:
                 element.settings.on_release(element)
 
         if not was_pressing and self.pressing:
+            element._set_dirty()
             self._started_pressing = True
             self._clicked = True
             if element.settings.on_click:
@@ -361,7 +390,7 @@ class _Element:
         self._parent: "_Element" | None = None
         self.settings: _Settings = _Settings()
         self.settings.offset, self.settings.scroll_offset = pygame.Vector2(), pygame.Vector2()
-        self.status: _Status = _Status()
+        self.status: _Status = _Status(self)
         self._topleft = pygame.Vector2()
         self._rect = pygame.Rect(
             self._topleft, (self.settings.width, self.settings.height))
@@ -372,6 +401,7 @@ class _Element:
         self._root_index = -1
         self._is_cont = False
         self._always_top = False
+        self._dirty = True
         if _UIManager.last_element:
             _UIManager.last_element._add_to_queue(self)
             self._parent = _UIManager.last_element
@@ -406,14 +436,21 @@ class _Element:
     def _set_w(self, w):
         if self.settings.width == w or not self.settings.auto_resize_h:
             return
+        self._set_dirty()
         self.settings.width = pygame.math.clamp(
             w, self.settings.min_width, self.settings.max_width if self.settings.max_width != 0 else float("inf"))
 
     def _set_h(self, h):
         if self.settings.height == h or not self.settings.auto_resize_v:
             return
+        self._set_dirty()
         self.settings.height = pygame.math.clamp(
             h, self.settings.min_height, self.settings.max_height if self.settings.max_height != 0 else float("inf"))
+        
+    def _set_dirty(self):
+        if not self._dirty and self.settings.visible:
+            self._dirty = True
+            if self._parent: self._parent._set_dirty()
 
     def _raycast(self, pos, draw_top=False):
         if (self.settings.draw_top and not draw_top) or not self.settings.visible or not self.settings.active:
@@ -485,12 +522,14 @@ class _Element:
                 self._bg_rect.topleft -= self._topleft+self.settings.offset
         if "on_toggle" in kwargs:
             self.settings.on_select = self.settings.on_deselect = kwargs["on_toggle"]
-
+            
+        self._set_dirty()
         self._on_set(**kwargs)
         return self
 
     def _add_child(self, child):
         self._children.append(child)
+        self._set_dirty()
 
     def _add_to_queue(self, child):
         self._children_queue.append(child)
@@ -515,15 +554,19 @@ class _Element:
         self._rect.topleft = self._real_topleft
         self._rel_rect.topleft = self._topleft+self.settings.offset
         if self.settings.width_percent and self.parent:
+            prev = self.settings.width
             self.settings.width = self.settings.min_width = self.settings.max_width = (
                 (self.parent.settings.width-(self.settings.margin*2+(self.settings.margin*(len(self._parent._children)-2) if
                                                                      self._parent._h_cont else 0))-self.parent._scroll_margin_h) *
                 self.settings.width_percent)/100
+            if prev != self.settings.width: self._set_dirty()
         if self.settings.height_percent and self.parent:
+            prev = self.settings.height
             self.settings.height = self.settings.min_height = self.settings.max_height = (
                 (self.parent.settings.height-(self.settings.margin*2+(self.settings.margin*(len(self._parent._children)-2) if
                                                                       self._parent._v_cont else 0))-self.parent._scroll_margin_v) *
                 self.settings.height_percent)/100
+            if prev != self.settings.height: self._set_dirty()
         if self._bg_image:
             if self._bg_image.get_width() != self._bg_rect.w or self._bg_image.get_height() != self._bg_rect.h:
                 self._bg_rect = self._bg_image.get_rect()
@@ -533,6 +576,7 @@ class _Element:
                     self._rect.w-self.settings.background_padding*2), int(self._rect.h-self.settings.background_padding*2)))
                 self._bg_rect.size = (self._rect.w-self.settings.background_padding*2,
                                       self._rect.h-self.settings.background_padding*2)
+                self._set_dirty()
         elif self.settings.adapt_to_bg and self._bg_image:
             if self.settings.width != (self._bg_rect.w + self.settings.background_padding*2) or self.settings.height != (self._bg_rect.h + self.settings.background_padding*2):
                 self._set_w(
@@ -540,9 +584,11 @@ class _Element:
                 self._set_h(
                     (self._bg_rect.h + self.settings.background_padding*2))
         if self._bg_image:
+            pp = self._bg_rect.topleft
             _anchor_inner(self.settings.background_anchor, self._rel_rect,
                           self._bg_rect, self.settings.background_padding)
             self._bg_rect.topleft -= self._topleft+self.settings.offset
+            if pp != self._bg_rect.topleft: self._set_dirty()
         self._rect.w = self.settings.width
         self._rect.h = self.settings.height
         self._rel_rect.size = self._rect.size
@@ -552,6 +598,7 @@ class _Element:
             self._surface = pygame.Surface(
                 (max(int(self.settings.width), 1), max(int(self.settings.height), 1)), pygame.SRCALPHA)
             self._on_font_change()
+            self._set_dirty()
 
     def _post_update(self):
         if not self.settings.active:
@@ -562,15 +609,15 @@ class _Element:
     def _draw(self, surface: pygame.Surface):
         if not self.settings.visible:
             return
-        self._surface.fill(0)
-        if self.settings.has_background:
+        if self._dirty: self._surface.fill(0)
+        if self.settings.has_background and self._dirty:
             bg_col = self.settings.click_color if (self.status.pressing or self.status.selected) and self.settings.show_press else \
                 self.settings.hover_color if self.status.hovering and self.settings.show_hover else \
                 self.settings.dark_bg_color if self.settings.has_dark_bg else \
                 self.settings.background_color
             pygame.draw.rect(self._surface, bg_col, ((
                 0, 0), self._rect.size), border_radius=self.settings.border_radius)
-        if self._bg_image:
+        if self._bg_image and self._dirty:
             fill_col = self.settings.click_color if (self.status.pressing or self.status.selected) and self.settings.show_press else \
                 self.settings.hover_color if self.status.hovering and self.settings.show_hover else None
             flag = self.settings.bg_press_flag if (self.status.pressing or self.status.selected) and self.settings.show_press else \
@@ -579,11 +626,12 @@ class _Element:
             if fill_col is not None:
                 fill_col = (*fill_col, self.settings.bg_effect_alpha)
                 self._surface.fill(fill_col, special_flags=flag)
-        self._on_draw()
-        for child in self._children:
-            if not child.settings.draw_top:
-                child._draw(self._surface)
-        if self.settings.has_outline:
+        if self._dirty:
+            self._on_draw()
+            for child in self._children:
+                if not child.settings.draw_top:
+                    child._draw(self._surface)
+        if self.settings.has_outline and self._dirty:
             pygame.draw.rect(self._surface, self.settings.outline_color,
                              ((0, 0), self._rect.size),
                              self.settings.outline_width,
@@ -596,8 +644,10 @@ class _Element:
                                      ((self._parent.settings.scroll_offset if not self.settings.ignore_scroll else _ZERO_VEC)
                                       if self._parent else _ZERO_VEC))
                      if not self.settings.draw_top else self._real_topleft)
+        self._dirty = False
 
     def _kill(self):
+        self._set_dirty()
         if self._parent:
             self._parent._remove_child(self)
         if self in _UIManager.top_elements:
@@ -613,6 +663,7 @@ class _Element:
         del self
 
     def _remove_child(self, child):
+        self._set_dirty()
         if child in self._children:
             self._children.remove(child)
 
@@ -625,15 +676,19 @@ class _Element:
                     if self._parent else _ZERO_VEC))
 
     def show(self):
+        self._set_dirty()
         self.settings.visible = True
 
     def hide(self):
+        self._set_dirty()
         self.settings.visible = False
 
     def activate(self):
+        self._set_dirty()
         self.settings.active = True
 
     def deactivate(self):
+        self._set_dirty()
         self.settings.active = False
 
     def point_hovering(self, point: _Coordinate) -> bool:

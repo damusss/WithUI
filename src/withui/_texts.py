@@ -178,6 +178,7 @@ class Entryline(_wuib._Element):
             if self._last_action:
                 if _wuib._UIManager.ticks - self._start_action >= self._wait_cooldown:
                     if _wuib._UIManager.ticks - self._action_time >= self._action_cooldown:
+                        self._set_dirty()
                         if self._last_action == pygame.K_LEFT:
                             self._char_left()
                         elif self._last_action == pygame.K_RIGHT:
@@ -199,6 +200,7 @@ class Entryline(_wuib._Element):
                     self._on_focus(self)
 
         if self._text:
+            prev = self._cursor
             if self._cursor < 0:
                 self._cursor = 0
             if self._cursor >= len(self._text)+1:
@@ -210,7 +212,9 @@ class Entryline(_wuib._Element):
                                  (self.settings.width-self.settings.padding*3))
             else:
                 self._text_x = 0
+            if prev != self._cursor: self._set_dirty()
         else:
+            if self._text_x != 0: self._set_dirty()
             self._text_x = 0
             self._cursor = 0
             self._cut_width = 0
@@ -224,6 +228,7 @@ class Entryline(_wuib._Element):
         if _wuib._UIManager.ticks - self._last_blink >= self._blink_time:
             self._show_cursor = not self._show_cursor
             self._last_blink = _wuib._UIManager.ticks
+            self._set_dirty()
         if self._last_action:
             self._show_cursor = True
 
@@ -244,6 +249,7 @@ class Entryline(_wuib._Element):
         self._cursor = sel_s
         self._selecting = False
         self._sel_start = self._sel_end = 0
+        self._set_dirty()
 
     def _copy(self):
         if not self._text or not self._selecting and self._sel_start != self._sel_end:
@@ -280,6 +286,7 @@ class Entryline(_wuib._Element):
             self._cursor = len(text_str)
         if self._on_change:
             self._on_change(self)
+        self._set_dirty()
 
     def _char_escape(self):
         self.unfocus()
@@ -309,6 +316,7 @@ class Entryline(_wuib._Element):
             self._on_change(self)
         self._last_action = pygame.K_BACKSPACE
         self._action_time = _wuib._UIManager.ticks
+        self._set_dirty()
 
     def _char_delete(self):
         if not self._text:
@@ -326,6 +334,7 @@ class Entryline(_wuib._Element):
             self._on_change(self)
         self._last_action = pygame.K_DELETE
         self._action_time = _wuib._UIManager.ticks
+        self._set_dirty()
 
     def _char_left(self):
         if not self._text:
@@ -336,6 +345,7 @@ class Entryline(_wuib._Element):
         self._action_time = _wuib._UIManager.ticks
         if self._selecting:
             self._sel_end = self._cursor
+        self._set_dirty()
 
     def _char_right(self):
         if not self._text:
@@ -346,14 +356,17 @@ class Entryline(_wuib._Element):
         self._action_time = _wuib._UIManager.ticks
         if self._selecting:
             self._sel_end = self._cursor
+        self._set_dirty()
 
     def focus(self):
         self._focused = True
+        self._set_dirty()
 
     def unfocus(self):
         self._focused = False
         self._selecting = False
         self._sel_start = self._sel_end = 0
+        self._set_dirty()
 
     def add_at_cursor(self, text: str):
         self._add_text(text)
@@ -374,6 +387,7 @@ class Entryline(_wuib._Element):
         self._selecting = True
         self._sel_start = 0
         self._sel_end = len(self._text)
+        self._set_dirty()
 
     def select(self, cursor_start: int, cursor_end: int):
         if not self._text or cursor_start == cursor_end:
@@ -382,11 +396,13 @@ class Entryline(_wuib._Element):
         self._sel_start = pygame.math.clamp(
             int(cursor_start), 0, len(self._text))
         self._sel_end = pygame.math.clamp(int(cursor_end), 0, len(self._text))
+        self._set_dirty()
 
     def place_cursor(self, index: int):
         if not self._text:
             return
         self._cursor = pygame.math.clamp(int(index), 0, len(self._text))
+        self._set_dirty()
 
     def is_selecting(self) -> bool:
         return self._selecting
@@ -394,6 +410,7 @@ class Entryline(_wuib._Element):
     def stop_selecting(self):
         self._selecting = False
         self._sel_start = self._sel_end = 0
+        self._set_dirty()
 
     @property
     def focused(self) -> bool:
@@ -416,3 +433,4 @@ class Entryline(_wuib._Element):
         if self._text: self._cursor = len(self._text)
         self._inner_surf = self.settings.font.render(
             self._text, self.settings.font_antialas, self.settings.text_color)
+        self._set_dirty()

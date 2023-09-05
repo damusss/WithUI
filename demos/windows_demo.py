@@ -16,7 +16,7 @@ pygame_logo = pygame.transform.scale_by(
 with wui.Window(size=(W//2, H//2), **wui.NORESIZE, title="Bars Demo") as window:
     # another demo inside
     window.inner_container.set(center_elements=True)
-    with wui.HCont(width_percent=101, height_percent=102, **wui.NORESIZE, center_elements=True):
+    with wui.HCont(width_percent=100, height_percent=100, **wui.NORESIZE, center_elements=True):
         with wui.VCont(**wui.NORESIZE, width_percent=50, height_percent=100, margin=0, **wui.INVISIBLE, center_elements=True):
             wui.Slider(slider_size=200)
             wui.Slider(direction="vertical", slider_size=200)
@@ -32,7 +32,7 @@ with wui.Window(size=(W//2, H//2), **wui.NORESIZE, title="Bars Demo") as window:
                                 value_percent=60, size=(30, 100), inner_color="purple")
 with wui.Window(size=(W//2, H//2), **wui.NORESIZE, title="Containers Demo", topleft=(W//2, H//2)):
     # another demo inside
-    with wui.HCont(width_percent=101, height_percent=102, **wui.NORESIZE, center_elements=True):
+    with wui.HCont(width_percent=100, height_percent=100, **wui.NORESIZE, center_elements=True):
         with wui.HCont(**wui.NORESIZE, width_percent=60, height_percent=100, margin=0, center_elements=True, **wui.INVISIBLE):
             with wui.HCont(width_percent=90, height_percent=50, **wui.NORESIZE, **wui.SCROLLABLE):
                 for i in range(7):

@@ -62,9 +62,12 @@ class VCont(_wuib._Element):
             for child in self._children:
                 child._topleft.y += (self.settings.height -
                                      self._scroll_margin_v)//2-tot_h//2
+        if longest != self._tot_w or tot_h != self._tot_h:
+            self._set_dirty()
         self._tot_h = tot_h
         self._tot_w = longest
         self._post_update()
+        self._set_dirty()
 
     def _on_init(self):
         self.set(has_dark_bg=True, show_hover=False, show_press=False)
@@ -132,6 +135,8 @@ class HCont(_wuib._Element):
             for child in self._children:
                 child._topleft.x += (self.settings.width -
                                      self._scroll_margin_h)//2-tot_w//2
+        if tot_w != self._tot_w or tallest != self._tot_h:
+            self._set_dirty()
         self._tot_w = tot_w
         self._tot_h = tallest
         self._post_update()

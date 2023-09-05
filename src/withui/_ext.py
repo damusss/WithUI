@@ -27,7 +27,7 @@ class TooltipManager:
         self._tooltip_cont.settings.visible = False
         for tooltip in self._data:
             was_hovering = tooltip["was_hovering"]
-            if tooltip["element"].status.hovering or self._tooltip_cont.status._absolute_hover:
+            if tooltip["element"].status.hovering:
                 tooltip["was_hovering"] = True
                 if not was_hovering:
                     tooltip["start_hover"] = pygame.time.get_ticks()
@@ -233,6 +233,7 @@ class FileDialog:
         self._root_index = 0
         self._refresh_items()
         self._refresh_path_entry()
+        self.settings = _wuib._Settings()
 
     def _validate_path(self, path, full=False):
         if not self._allow_folders and os.path.isdir(str(path)) and full:

@@ -54,11 +54,14 @@ class SelectionList(VCont):
 
     def _on_select(self, button):
         if self._multi_select:
+            for opt in self._option_buttons:
+                opt._set_dirty()
             if self.settings.on_select:
                 self.settings.on_select(
                     [button.text for button in self._option_buttons if button.status.selected])
         else:
             for btn in self._option_buttons:
+                btn._set_dirty()
                 if btn.text != button.text:
                     btn.status.deselect()
             if self.settings.on_select:
@@ -141,6 +144,8 @@ class DropMenu(HCont):
 
     def _option_click(self, btn):
         self._selected_button.set(text=btn.text)
+        for opt in self._option_buttons:
+            opt._set_dirty()
         self.close_menu()
         if self.settings.on_select:
             self.settings.on_select(btn.text)

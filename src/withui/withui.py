@@ -250,5 +250,5 @@ def draw_ui(surface: pygame.Surface):
     for element in sorted(_wuib._UIManager.root_elements, key=lambda tel: tel._root_index):
         element._draw(surface)
         for el in _wuib._UIManager.top_elements:
-            if el._root_element._root_index == element._root_index:
+            if el._root_element._root_index == element._root_index and element.settings.visible:
                 el._draw(surface)

@@ -34,11 +34,13 @@ class ProgressBar(_wuib._Element):
     def _update(self):
         self._pre_update()
 
+        prev = self.value
         if self.value_percent != None:
             self.value = self.min_value + \
                 ((self.max_value-self.min_value)*self.value_percent)/100
         self.value = pygame.math.clamp(
             self.value, self.min_value, self.max_value)
+        if prev != self.value: self._set_dirty()
 
         if "left" in self.direction:
             self._inner_rect.width = ((self.value-self.min_value)*self.settings.width)/(
@@ -142,8 +144,10 @@ class Slider(_wuib._Element):
                 ((self.settings.width if self._direction ==
                  "horizontal" else self.settings.height)-self._handle_size//2)
 
-        if previous != self._handle_pos and self._on_move:
-            self._on_move(self, self._handle_pos-previous)
+        if previous != self._handle_pos:
+            if self._on_move:
+                self._on_move(self, self._handle_pos-previous)
+            self._set_dirty()
             
         self._post_update()
 

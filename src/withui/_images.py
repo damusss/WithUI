@@ -32,6 +32,7 @@ class Image(_wuib._Element):
             self._inner_rect = self._inner_surf.get_rect()
             self._set_h(self._inner_rect.height+self.settings.padding*2)
             self._set_w(self._inner_rect.width+self.settings.padding*2)
+        self._set_dirty()
 
     @property
     def surface(self) -> pygame.Surface | None:
@@ -80,6 +81,7 @@ class Slideshow(HCont):
         if self.settings.on_select:
             self.settings.on_select(
                 self.image._inner_surf, self._surface_index)
+        self._set_dirty()
 
     def _on_right_click(self, btn):
         self._surface_index += 1
@@ -90,6 +92,7 @@ class Slideshow(HCont):
         if self.settings.on_select:
             self.settings.on_select(
                 self.image._inner_surf, self._surface_index)
+        self._set_dirty()
 
     @property
     def surface(self) -> pygame.Surface:
@@ -140,6 +143,7 @@ class GIF(_wuib._Element):
             self._inner_rect = self._inner_surf.get_rect()
             self._set_h(self._inner_rect.height+self.settings.padding*2)
             self._set_w(self._inner_rect.width+self.settings.padding*2)
+            self._set_dirty()
         
         self._post_update()
         

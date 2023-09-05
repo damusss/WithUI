@@ -39,19 +39,19 @@ withui.Button(width=100, text="Button text")
 
 ## show()
 
-Same as `set(visible=True)` or `element.settings.visible = True`
+Same as `set(visible=True)`
 
 ## hide()
 
-Same as `set(visible=False)` or `element.settings.visible = False`
+Same as `set(visible=False)`
 
 ## activate()
 
-Same as `set(active=True)` or `element.settings.active = True`
+Same as `set(active=True)`
 
 ## deactivate()
 
-Same as `set(active=False)` or `element.settings.active = False`
+Same as `set(active=False)`
 
 ## point_hovering(point: Coordinate) -> bool
 

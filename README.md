@@ -1,7 +1,7 @@
 # WithUI Beta
 
-Simple Pygame UI Library <br>
-The name was created after the structure style of the library. To create a parentship between elements you use the with python syntax
+Lightweight pygame UI Library <br>
+The name was created after the structure style of the library. To create a parentship between elements you use the with statement
 
 # Features
 
