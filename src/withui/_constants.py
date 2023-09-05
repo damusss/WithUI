@@ -74,6 +74,8 @@ _SETTINGS_HELP = {
         "on_select": "Called when the element is selected if can_select flag is enabled",
         "on_deselect": "Called when the element is deselected if can_select flag is enabled",
         "on_toggle": "Set both on_select and on_deselect with the same callback",
+        "on_right_click": "Called the frame the element is right clicked if can_press flag is enabled",
+        "on_right_release": "Called the frame the element is released from right clicking if can_press flag is enabled",
         "can_hover": "If enabled, the element will fire hover events",
         "can_press": "If enabled, the element will fire press, click and release events",
         "can_select": "If enabled, the element will fire select and deselect events",

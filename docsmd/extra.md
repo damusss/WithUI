@@ -85,6 +85,10 @@ Set the sound that will play when hovering an element
 
 Set the sound that will play when clicking an element
 
+## raycast(position: Coordinate) -> Element | None
+
+Shoot a ray to the UI elements and return the first one to be hit, if any
+
 ## get_all_elements() -> list[Element]
 
 Return a copy of the list containing all elements existing. Useful to apply settings like a theme during runtime

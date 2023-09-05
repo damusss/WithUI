@@ -199,6 +199,19 @@ def refresh_default_font():
     _wuib._Settings.font = func(font_name, _wuib._Settings.font_size)
 
 
+def raycast(position: _wuib._Coordinate) -> _wuib._Element | None:
+    for element in sorted(_wuib._UIManager.root_elements, key=lambda tel: -tel._root_index):
+        for el in _wuib._UIManager.top_elements:
+            if el._root_element._root_index == element._root_index:
+                result = el._raycast(position, True)
+                if result:
+                    return result
+        result = element._raycast(position)
+        if result:
+            return result
+    return None
+
+
 def get_all_elements() -> list[_wuib._Element]:
     return _wuib._UIManager.all_elements.copy()
 

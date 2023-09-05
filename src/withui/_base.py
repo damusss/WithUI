@@ -19,6 +19,7 @@ class _UIManager:
     mouse_rel = (0, 0)
     keys = None
     was_clicking = False
+    was_right = False
     frame_events: list[pygame.event.Event] = []
     frame_ended = False
     ticks = 0
@@ -35,6 +36,7 @@ class _UIManager:
         cls.space_pressed = False
         if cls.mouse_buttons:
             cls.was_clicking = cls.mouse_buttons[0]
+            cls.was_right = cls.mouse_buttons[2]
         cls.mouse_buttons = pygame.mouse.get_pressed()
         cls.mouse_pos = pygame.mouse.get_pos()
         cls.mouse_rel = pygame.mouse.get_rel()
@@ -182,9 +184,11 @@ class _Settings:
     on_release: typing.Callable[[typing.Any], None] | None = None
     on_pressed: typing.Callable[[typing.Any], None] | None = None
     on_select: typing.Callable[[typing.Any], None] | None = None
-    on_deselect:  typing.Callable[[typing.Any], None] | None = None
-    on_mouse_enter:  typing.Callable[[typing.Any], None] | None = None
-    on_mouse_exit:  typing.Callable[[typing.Any], None] | None = None
+    on_deselect: typing.Callable[[typing.Any], None] | None = None
+    on_mouse_enter: typing.Callable[[typing.Any], None] | None = None
+    on_mouse_exit: typing.Callable[[typing.Any], None] | None = None
+    on_right_click: typing.Callable[[typing.Any], None] | None = None
+    on_right_release: typing.Callable[[typing.Any], None] | None = None
     # event flags
     can_hover: bool = True
     can_press: bool = True
@@ -220,17 +224,27 @@ class _Status:
         self.hovering: bool = False
         self.pressing: bool = False
         self.selected: bool = False
+        self.right_pressing: bool = False
         self._hovering = False
         self._clicked = False
+        self._right_clicked = False
+        self._right_released = False
         self._released = False
         self._started_pressing = False
+        self._started_right = False
         self._absolute_hover = False
 
     def check_click(self) -> bool:
         return self._clicked
 
+    def check_right_click(self) -> bool:
+        return self._right_clicked
+
     def check_release(self) -> bool:
         return self._released
+    
+    def check_right_release(self) -> bool:
+        return self._right_released
 
     def select(self):
         self.selected = True
@@ -252,8 +266,7 @@ class _Status:
         return any_other_child
 
     def _update(self, element: "_Element"):
-        self._clicked = False
-        self._released = False
+        self._clicked  = self._released = self._right_clicked = self._right_released = False
         any_other = False
         for el in _UIManager.top_elements:
             if not el is element and not el is element._parent and el.settings.visible and \
@@ -279,6 +292,27 @@ class _Status:
         self.pressing = (((
             self.hovering or self._started_pressing) and _UIManager.mouse_buttons[0]) or
             element is _UIManager.tabbed_element and _UIManager.space_pressed) and element.settings.can_press
+
+        was_right = self.right_pressing
+        self.right_pressing = (self.hovering or self._started_right) and _UIManager.mouse_buttons[
+            2] and element.settings.can_press
+        
+        if not was_hovering and _UIManager.was_right and not self._started_right:
+            self.right_pressing = False
+            self.hovering = False
+            self._hovering = False
+
+        if not was_right and self.right_pressing:
+            self._right_clicked = True
+            self._started_right = True
+            if element.settings.on_right_click:
+                element.settings.on_right_click(element)
+
+        if was_right and not self.right_pressing:
+            self._right_released = True
+            self._started_right = False
+            if element.settings.on_right_release:
+                element.settings.on_right_release(element)
 
         if not was_hovering and _UIManager.was_clicking and not self._started_pressing:
             self.pressing = False
@@ -380,6 +414,16 @@ class _Element:
             return
         self.settings.height = pygame.math.clamp(
             h, self.settings.min_height, self.settings.max_height if self.settings.max_height != 0 else float("inf"))
+
+    def _raycast(self, pos, draw_top=False):
+        if (self.settings.draw_top and not draw_top) or not self.settings.visible or not self.settings.active:
+            return None
+        for child in self._children:
+            if (result := child._raycast(pos)):
+                return result
+        if self._rect.collidepoint(pos):
+            return self
+        return None
 
     def set(self, **kwargs: dict[str, typing.Any]) -> typing.Self:
         for name, val in kwargs.items():

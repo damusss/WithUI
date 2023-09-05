@@ -87,7 +87,7 @@ while True:
     tt_manager.update()
     wui.ext.AnimationsManager.update(dt)
     wui.update_ui()
-
+    result = wui.raycast(pygame.mouse.get_pos())
     wui.draw_ui(screen)
 
     pygame.display.update()
