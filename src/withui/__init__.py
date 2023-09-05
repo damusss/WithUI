@@ -20,7 +20,6 @@ from .withui import (
     EmptyElement,
     UserSettings,
     Themes,
-    Clipboard,
     INVISIBLE,
     SCROLLABLE,
     STATIC,

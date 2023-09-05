@@ -4,12 +4,6 @@
 
 In addition to the rest, there are still a few things left!
 
-# Clipboard
-
-Very small class, it's a wrapper for the scrap module.
-
-Only have a `put(text:str)` method to update the clipboard and `get()` to retrieve data from it
-
 # Constants
 
 ## INVISIBLE

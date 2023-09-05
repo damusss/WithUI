@@ -120,16 +120,6 @@ class Themes:
         _wuib._Settings.navigation_color = theme["navigation_color"]
 
 
-class Clipboard:
-    @staticmethod
-    def put(text: str):
-        pygame.scrap.put_text(text)
-
-    @staticmethod
-    def get() -> str:
-        return pygame.scrap.get_text()
-
-
 INVISIBLE: dict[str, bool] = {
     "has_background": False,
     "has_outline": False
