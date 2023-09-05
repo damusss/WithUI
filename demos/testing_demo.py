@@ -39,7 +39,7 @@ with wui.VCont(**wui.UserSettings.get("vcont")) as cont:
     wui.ext.TypingAnimation(
         animated_label, "This thing, will appear. animated \nyes").start()
 
-    wui.Line(height=3, width_percent=100)
+    line = wui.Line(height=3, width_percent=100)
     checkbox = wui.Checkbox(min_max_size=(30, 30))
     button = wui.Button(text="RANDOM\n BUTTON", width=100, height=100, auto_resize_h=True, auto_resize_v=True,
                         background_image=pygame_logo, has_background=False, text_color="black", background_padding=5, adapt_to_bg=True)
@@ -56,7 +56,7 @@ with wui.VCont(**wui.UserSettings.get("vcont")) as cont:
     wui.DropMenu(options=["io", "sono", "tua", "madre",
                  "in", "realta"], min_max_width=200)
     wui.Separator(min_max_size=(800, 800))
-
+    
 with wui.Window(min_max_size=(300, 300)):
     for i in range(20):
         wui.Button(text="win button")

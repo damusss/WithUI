@@ -4,7 +4,7 @@ Elements:
 
 Features:
 
-None
+move element forward and backwards between children
 
 EXT Module:
 

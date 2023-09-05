@@ -65,6 +65,10 @@ Return whether the element is a tree element
 
 Deletes the element from every place its referenced
 
+## move_in_parent(places: int = 1) -> bool
+
+Move the element a specified amount of places through the parent's children if any. Return whether the element position changed
+
 # Properties
 
 ## parent: Element | None

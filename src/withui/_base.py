@@ -47,18 +47,23 @@ class _UIManager:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     cls.navigating = False
-                    if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                    if cls.tabbed_element:
+                        cls.tabbed_element._set_dirty()
                     cls.tabbed_element = None
                 elif event.key == pygame.K_UP:
                     if cls.navigating and cls.tabbed_element is not None and cls.tabbed_element.parent is not None:
-                        if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                        if cls.tabbed_element:
+                            cls.tabbed_element._set_dirty()
                         cls.tabbed_element = cls.tabbed_element.parent
-                        if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                        if cls.tabbed_element:
+                            cls.tabbed_element._set_dirty()
                 elif event.key == pygame.K_RETURN:
                     if cls.navigating and cls.tabbed_element is not None and len(cls.tabbed_element._children) > 0:
-                        if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                        if cls.tabbed_element:
+                            cls.tabbed_element._set_dirty()
                         cls.tabbed_element = cls.tabbed_element._children[0]
-                        if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                        if cls.tabbed_element:
+                            cls.tabbed_element._set_dirty()
                         if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                             cls.tab(1)
                 elif event.key == pygame.K_TAB:
@@ -68,9 +73,11 @@ class _UIManager:
                     else:
                         if not cls.navigating and len(cls.root_elements) > 0 and cls.navigation_enabled:
                             cls.navigating = True
-                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                            if cls.tabbed_element:
+                                cls.tabbed_element._set_dirty()
                             cls.tabbed_element = cls.root_elements[0]
-                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                            if cls.tabbed_element:
+                                cls.tabbed_element._set_dirty()
                             if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                                 cls.tab(1)
                         else:
@@ -89,28 +96,35 @@ class _UIManager:
                     cls.tabbed_element)
             except ValueError:
                 cls.navigating = False
-                if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                if cls.tabbed_element:
+                    cls.tabbed_element._set_dirty()
                 cls.tabbed_element = None
             else:
                 cur_index += increment
                 if (cur_index < len(cls.tabbed_element._parent._children) and increment > 0) or (cur_index >= 0 and increment < 0):
-                    if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                    if cls.tabbed_element:
+                        cls.tabbed_element._set_dirty()
                     cls.tabbed_element = cls.tabbed_element._parent._children[cur_index]
-                    if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                    if cls.tabbed_element:
+                        cls.tabbed_element._set_dirty()
                     if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                         cls.tab(increment)
                 else:
                     if len(cls.tabbed_element._parent._children) > 0:
                         if increment > 0:
-                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                            if cls.tabbed_element:
+                                cls.tabbed_element._set_dirty()
                             cls.tabbed_element = cls.tabbed_element._parent._children[0]
-                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                            if cls.tabbed_element:
+                                cls.tabbed_element._set_dirty()
                             if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                                 cls.tab(increment)
                         else:
-                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                            if cls.tabbed_element:
+                                cls.tabbed_element._set_dirty()
                             cls.tabbed_element = cls.tabbed_element._parent._children[-1]
-                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                            if cls.tabbed_element:
+                                cls.tabbed_element._set_dirty()
                             if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                                 cls.tab(increment)
         else:
@@ -118,28 +132,35 @@ class _UIManager:
                 cur_index = cls.root_elements.index(cls.tabbed_element)
             except ValueError:
                 cls.navigating = False
-                if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                if cls.tabbed_element:
+                    cls.tabbed_element._set_dirty()
                 cls.tabbed_element = None
             else:
                 cur_index += increment
                 if (cur_index < len(cls.root_elements) and increment > 0) or (cur_index >= 0 and increment < 0):
-                    if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                    if cls.tabbed_element:
+                        cls.tabbed_element._set_dirty()
                     cls.tabbed_element = cls.root_elements[cur_index]
-                    if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                    if cls.tabbed_element:
+                        cls.tabbed_element._set_dirty()
                     if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                         cls.tab(increment)
                 else:
                     if len(cls.root_elements) > 0:
                         if increment > 0:
-                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                            if cls.tabbed_element:
+                                cls.tabbed_element._set_dirty()
                             cls.tabbed_element = cls.root_elements[0]
-                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                            if cls.tabbed_element:
+                                cls.tabbed_element._set_dirty()
                             if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                                 cls.tab(increment)
                         else:
-                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                            if cls.tabbed_element:
+                                cls.tabbed_element._set_dirty()
                             cls.tabbed_element = cls.root_elements[-1]
-                            if cls.tabbed_element: cls.tabbed_element._set_dirty()
+                            if cls.tabbed_element:
+                                cls.tabbed_element._set_dirty()
                             if not cls.tabbed_element.settings.active or not cls.tabbed_element.settings.visible or not cls.tabbed_element.settings.can_navigate:
                                 cls.tab(increment)
 
@@ -264,7 +285,7 @@ class _Status:
 
     def check_release(self) -> bool:
         return self._released
-    
+
     def check_right_release(self) -> bool:
         return self._right_released
 
@@ -291,7 +312,7 @@ class _Status:
         return any_other_child
 
     def _update(self, element: "_Element"):
-        self._clicked  = self._released = self._right_clicked = self._right_released = False
+        self._clicked = self._released = self._right_clicked = self._right_released = False
         any_other = False
         for el in _UIManager.top_elements:
             if not el is element and not el is element._parent and el.settings.visible and \
@@ -321,7 +342,7 @@ class _Status:
         was_right = self.right_pressing
         self.right_pressing = (self.hovering or self._started_right) and _UIManager.mouse_buttons[
             2] and element.settings.can_press
-        
+
         if not was_hovering and _UIManager.was_right and not self._started_right:
             self.right_pressing = False
             self.hovering = False
@@ -446,11 +467,12 @@ class _Element:
         self._set_dirty()
         self.settings.height = pygame.math.clamp(
             h, self.settings.min_height, self.settings.max_height if self.settings.max_height != 0 else float("inf"))
-        
+
     def _set_dirty(self):
         if not self._dirty and self.settings.visible:
             self._dirty = True
-            if self._parent: self._parent._set_dirty()
+            if self._parent:
+                self._parent._set_dirty()
 
     def _raycast(self, pos, draw_top=False):
         if (self.settings.draw_top and not draw_top) or not self.settings.visible or not self.settings.active:
@@ -522,7 +544,7 @@ class _Element:
                 self._bg_rect.topleft -= self._topleft+self.settings.offset
         if "on_toggle" in kwargs:
             self.settings.on_select = self.settings.on_deselect = kwargs["on_toggle"]
-            
+
         self._set_dirty()
         self._on_set(**kwargs)
         return self
@@ -559,14 +581,16 @@ class _Element:
                 (self.parent.settings.width-(self.settings.margin*2+(self.settings.margin*(len(self._parent._children)-2) if
                                                                      self._parent._h_cont else 0))-self.parent._scroll_margin_h) *
                 self.settings.width_percent)/100
-            if prev != self.settings.width: self._set_dirty()
+            if prev != self.settings.width:
+                self._set_dirty()
         if self.settings.height_percent and self.parent:
             prev = self.settings.height
             self.settings.height = self.settings.min_height = self.settings.max_height = (
                 (self.parent.settings.height-(self.settings.margin*2+(self.settings.margin*(len(self._parent._children)-2) if
                                                                       self._parent._v_cont else 0))-self.parent._scroll_margin_v) *
                 self.settings.height_percent)/100
-            if prev != self.settings.height: self._set_dirty()
+            if prev != self.settings.height:
+                self._set_dirty()
         if self._bg_image:
             if self._bg_image.get_width() != self._bg_rect.w or self._bg_image.get_height() != self._bg_rect.h:
                 self._bg_rect = self._bg_image.get_rect()
@@ -588,7 +612,8 @@ class _Element:
             _anchor_inner(self.settings.background_anchor, self._rel_rect,
                           self._bg_rect, self.settings.background_padding)
             self._bg_rect.topleft -= self._topleft+self.settings.offset
-            if pp != self._bg_rect.topleft: self._set_dirty()
+            if pp != self._bg_rect.topleft:
+                self._set_dirty()
         self._rect.w = self.settings.width
         self._rect.h = self.settings.height
         self._rel_rect.size = self._rect.size
@@ -609,7 +634,8 @@ class _Element:
     def _draw(self, surface: pygame.Surface):
         if not self.settings.visible:
             return
-        if self._dirty: self._surface.fill(0)
+        if self._dirty:
+            self._surface.fill(0)
         if self.settings.has_background and self._dirty:
             bg_col = self.settings.click_color if (self.status.pressing or self.status.selected) and self.settings.show_press else \
                 self.settings.hover_color if self.status.hovering and self.settings.show_hover else \
@@ -674,6 +700,25 @@ class _Element:
                 (self._parent._real_topleft if self._parent else _ZERO_VEC) -
                 ((self._parent.settings.scroll_offset if not self.settings.ignore_scroll else _ZERO_VEC)
                     if self._parent else _ZERO_VEC))
+
+    def move_in_parent(self, places: int = 1) -> bool:
+        if not self._parent:
+            return False
+        if len(self._parent.children) <= 1:
+            return False
+        try:
+            my_idx = prev_idx = self._parent._children.index(self)
+        except ValueError:
+            return False
+        else:
+            my_idx += places
+            my_idx = pygame.math.clamp(
+                my_idx, 0, len(self._parent._children)-1)
+            if my_idx == prev_idx:
+                return False
+            self._parent._children.remove(self)
+            self._parent._children.insert(my_idx, self)
+            return True
 
     def show(self):
         self._set_dirty()
